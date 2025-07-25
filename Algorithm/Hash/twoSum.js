@@ -1,3 +1,4 @@
+// leetcode100 1.两数之和使用哈希map，注意谁是key谁是value 
 // 输入：nums = [2,7,11,15], target = 9
 // 输出：[0,1]
 // 找出nums里面和为target的两个数，并返回其数组下标
