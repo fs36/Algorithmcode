@@ -1,0 +1,36 @@
+/**
+ 请补全JavaScript代码，要求如下：
+1. 给"ul"标签添加点击事件
+2. 当点击某"li"标签时，该标签内容拼接"."符号。如：某"li"标签被点击时，该标签内容为".."
+注意：
+1. 必须使用DOM0级标准事件（onclick）
+ */
+ !DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* 填写样式 */
+    </style>
+</head>
+
+<body>
+    <ul class="myList">
+        <li>.</li>
+        <li>.</li>
+        <li>.</li>
+    </ul>
+    <!-- 填写标签 -->
+    <script type="text/javascript">
+        // 填写JavaScript
+        document.getElementById("myList").onclick = function(event) {
+            var target = event.target; // 获取被点击的元素
+            if (target.tagName === 'LI') { // 确保是li标签被点击
+                target.textContent += '.'; // 在内容后添加一个点
+            }
+        };
+    </script>
+</body>
+
+</html>
