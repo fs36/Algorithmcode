@@ -189,4 +189,68 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
   - 当变量在当前作用域找不到时，沿作用域链逐级向上查找。
 - 实际运用：变量查找、闭包、变量提升
 
-### 8. 
+### 8. JavaScript原型，原型链 ? 有什么特点？
+- **原型（对象属性共享机制）**：Object.prototype
+  - 作用：实现对象之间属性和方法的共享，节省内存。
+- **原型链（查找机制）**：当访问对象的属性或方法时，如果对象本身没有，则会沿着 Prototype 链向上查找，直到找到 Object.prototype，再找不到返回 undefined。
+  - 特点：实现了JS的继承机制
+
+- 特点总结：
+  - 共享性：方法放在原型上，所有实例共享。
+  - 继承性：对象可以访问原型链上的属性。
+  - 动态性：原型对象可以随时修改，实例会立即反映。
+  - 链式查找：查找属性/方法时沿原型链向上搜索，直到 Object.prototype。
+
+- 应用场景：
+  - 节省内存：方法放在原型上，多个实例共享
+  - 继承实现
+  - 动态扩展实例方法
+- 构造函数、原型和实例之间的关系 
+  - 通过new 来创建实例对象
+  - 构造函数每个对象的__proto__都是指向它的构造函数的原型对象prototype的
+`person1.__proto__ === Person.prototype`
+    - 使用 Object.getPrototypeOf可以获得原型
+  - 每个函数拥有prototype属性，指向原型对象。同时，原型对象有一个自有属性constructor，这个属性指向该函数
+
+- 函数（包括原生构造函数）的原型对象为Function.prototype;
+`Function.prototype.__proto__ === Object.prototype`
+- `Object.prototype.__proto__ === null`
+![JavaScript Prototype Chain](https://segmentfault.com/img/remote/1460000042725377)
+![alt text](image-1.png)
+
+### 9. Javascript如何实现继承？
+- 继承的概念：子类可以继承父类的属性和方法，同时也可以重新定义父类的某些属性，并重写或覆盖某些属性和方法
+- 实现方式：
+  - 原型链继承
+    - 子对象可以访问父对象的方法和属性
+    - 缺点：实例共享引用类型属性，1个改都会改；属性初始化不灵活，需要调用构造函数否则容易undefined
+  - 构造函数继承（借助call）
+    - 优点：每个实例属性独立，父类自己定义的方法子类无法继承
+    - 缺点：方法不能复用，需要在构造函数中定义，浪费内存
+  - 组合继承：属性独立，方法共享
+  - ES6 class继承：语法简洁，清晰
+    ```javascript
+    class Parent {
+      constructor(name) {
+        this.name = name;
+      }
+      greet() {
+        console.log(`Hello, my name is ${this.name}`);
+      }
+    }
+
+    class Child extends Parent {
+      constructor(name, age) {
+        super(name); // 调用父类构造函数
+        this.age = age;
+      }
+      introduce() {
+        console.log(`I am ${this.name}, and I am ${this.age} years old.`);
+      }
+    }
+
+    // 示例
+    const child = new Child("Alice", 10);
+    child.greet(); // 输出: Hello, my name is Alice
+    child.introduce(); // 输出: I am Alice, and I am 10 years old.
+    ```
