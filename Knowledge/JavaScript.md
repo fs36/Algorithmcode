@@ -189,7 +189,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
   - 当变量在当前作用域找不到时，沿作用域链逐级向上查找。
 - 实际运用：变量查找、闭包、变量提升
 
-### 8. JavaScript原型，原型链 ? 有什么特点？
+### <font color="yellow">8. JavaScript原型，原型链 ? 有什么特点？</font>
 - **原型（对象属性共享机制）**：Object.prototype
   - 作用：实现对象之间属性和方法的共享，节省内存。
 - **原型链（查找机制）**：当访问对象的属性或方法时，如果对象本身没有，则会沿着 Prototype 链向上查找，直到找到 Object.prototype，再找不到返回 undefined。
@@ -218,7 +218,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 ![JavaScript Prototype Chain](https://segmentfault.com/img/remote/1460000042725377)
 ![alt text](image-1.png)
 
-### 9. Javascript如何实现继承？
+### <font color="yellow">9. Javascript如何实现继承？</font>
 - 继承的概念：子类可以继承父类的属性和方法，同时也可以重新定义父类的某些属性，并重写或覆盖某些属性和方法
 - 实现方式：
   - 原型链继承
@@ -254,3 +254,97 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
     child.greet(); // 输出: Hello, my name is Alice
     child.introduce(); // 输出: I am Alice, and I am 10 years old.
     ```
+### <font color="yellow">10. 谈谈this对象的理解？</font>
+- 定义：this 关键字是**函数运行时自动生成**的一个内部对象，只能在函数内部使用，总**指向调用它的对象**
+- this在函数执行过程中，this一旦被确定了（this的指向在**函数调用**时确定的），就**不可以再更改**
+  
+#### 绑定规则
+1. 默认绑定：普通函数直接调用时，非严格模式下指向 window（浏览器）或 global（Node），严格模式下为 undefined。
+
+2. 隐式绑定：作为对象方法调用时，this 指向调用该方法的对象。
+
+3. 显式绑定：通过 call、apply、bind 可以手动指定 this。
+
+4. new 绑定：通过构造函数调用时，this 指向新创建的实例对象。
+   - new过程遇到return一个对象，此时this指向为返回的对象
+   ```javaScript 
+   function fn()  
+   {  
+    this.user = 'xxx';  
+    return {};  
+   }
+   var a = new fn();  
+   console.log(a.user); //undefined
+   ```
+  - 如果返回一个简单类型的时候(例如：返回1)，则this指向实例对象
+  - 注意的是null虽然也是对象，但是此时new仍然指向实例对象
+
+5. 箭头函数：没有自己的 this，继承自外层作用域。  
+6. 优先级：new绑定 > 显示绑定 > 隐式绑定 > 默认绑定
+
+### 11. typeof 与 instanceof 区别
+#### typeof
+- 作用：返回一个字符串，表示操作数的类型。
+- 可识别的类型：number、string、boolean、undefined、object、bigint、symbol、function、
+- 特点：适合用来判断 **基本数据类型**和变量。
+  ```javaScriptif
+      (typeof a != 'undefined'){
+      //变量存在
+    }
+  ```
+- 局限：
+  - typeof null === "object"（历史遗留 Bug）
+  - 无法区分数组和对象（都返回 "object"）
+
+#### instanceof(返回布尔值)
+- 作用：检测某个对象的**原型链**上，是否能找到构造函数的 prototype。
+- 语法：`obj instanceof Constructor`
+- 特点：适合用来判断 引用类型（数组、对象、函数、类实例）。
+- 局限：
+  - 不能判断原始值（例如1123，但是new Number(123)可以判断）
+  - 跨 iframe / 跨 realm 可能失效（因为构造函数不同）
+
+#### 其他判断数据类型的方式
+1. Object.prototype.toString.call()
+- 最准确的类型判断方式，返回 "[object Type]"。
+- 可区分所有内置对象（包括 null、Array、RegExp、Date、Map、Set）。
+- 局限：写法稍繁琐。
+- Object.prototype.toString 不加 call 时，只能检测当前对象，而且可能被重写；加上 call 后可以把任意值作为 this，返回其内部类型标签，是最稳妥的类型判断方法。
+
+2. Array.isArray()
+  - ES5 新增，专门判断是否为数组。
+  - 推荐使用，语义清晰，跨 iframe 也能正常工作。
+
+### 12.说说new操作符具体干了什么？
+- 作用：new操作符用于创建一个给定构造函数的实例对象
+- 它做了两件事：
+  - 把 **构造函数和原型链** 关联起来。
+  - 把 **构造函数里的逻辑** 应用到新对象上。
+
+- 流程：
+  - 1. 创建一个空对象`let newObj = {}`
+  - 2. 绑定原型:将这个新对象的原型（__proto__）指向构造函数的 prototype。`newObj.__proto__ = Foo.prototype;`
+  - 3. 执行构造函数：将构建函数中的this绑定到新建的对象newObj上`let result = Foo.call(newObj);`
+  - 4. 返回结果
+    - 如果构造函数显式返回一个对象（引用类型），则返回该对象。
+    - 否则返回新创建的对象 newObj。
+
+### 13. bind、call、apply 区别？如何实现一个bind?
+- 作用：改变函数运行时的this指向
+#### call
+- 语法：`fn.call(thisArg, arg1, arg2, ...）`
+- 作用：立即调用函数，this 指向 thisArg，参数按顺序传递。
+#### apply
+- 语法：`fn.apply(thisArg, [argsArray])`
+- 作用：立即调用函数，this 指向 thisArg，参数以 **数组**形式传递。
+#### bind
+- 语法：`fn.bind(thisArg, arg1, arg2, ...)`
+- 作用：不会立即执行，而是返回一个新的函数，新函数调用时 this 永远指向 thisArg，并可进行参数预置。
+#### 区别
+- 三者都可以改变函数的this对象指向
+- 三者第一个参数都是this要指向的对象，如果如果没有这个参数或参数为undefined或null，则默认指向全局window
+- 三者都可以传参，但是**apply是数组，而call是参数列表**，且apply和call是一次性传入参数，而bind可以分为多次传入
+- bind 是**返回绑定this之后的函数**，apply 、call 则是立即执行
+- bind 是永久改变this指向，call和apply是临时改变一次
+
+### 14. ajax原理是什么？如何实现？
