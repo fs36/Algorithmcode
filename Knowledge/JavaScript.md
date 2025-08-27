@@ -347,4 +347,309 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 - bind 是**返回绑定this之后的函数**，apply 、call 则是立即执行
 - bind 是永久改变this指向，call和apply是临时改变一次
 
-### 14. ajax原理是什么？如何实现？
+### <font color="yellow">14. ajax原理是什么？如何实现？</font>
+- 定义：AJAX（Asynchronous JavaScript and XML） 是一种在 **不刷新整个页面** 的情况下，与服务器进行数据交换并更新部分页面内容的技术。
+- 原理：通过XmlHttpRequest对象来向服务器发异步请求，从服务器获得数据，然后用JavaScript来操作DOM而更新页面
+- 关键特性：
+  - 异步请求，不阻塞页面。
+  - 提升用户体验（如搜索建议、局部刷新）。
+  - 跨域需要配合 CORS 或代理解决。
+#### 实现过程
+1. **创建XMLHttpRequest对象**`const xhr = new XMLHttpRequest();`
+2. **与服务器建立连接**:通过 XMLHttpRequest 对象的 open() 方法与服务器建立连接`xhr.open(method, url, [async][, user][, password])`
+   1. 参数说明：
+      1. method：表示当前的请求方式，常见的有GET、POST
+      2. url：服务端地址
+      3. async：布尔值，表示是否异步执行操作，默认为true
+      4. user: 可选的用户名用于认证用途；默认为`null
+      5. password: 可选的密码用于认证用途，默认为`null
+3. **给服务端发数据**：通过 XMLHttpRequest 对象的 send() 方法，将客户端页面的数据发送给服务端`xhr.send([body])`
+   1. body: 在 XHR 请求中要发送的数据体，如果不传递数据则为 null
+4. **绑定onreadystatechange事件**:`onreadystatechange` 事件用于监听服务器端的通信状态，主要监听的属性为`XMLHttpRequest.readyState`
+   1. AJAX 的核心就是 XHR 状态机：
+0-初始化 → 1-建立连接（已open()） → 2-收到响应头(已send()) → 3-加载响应体(正在接收数据) → 4-完成。
+我们通常在 readyState === 4 且 status 成功时拿到最终数据。
+
+- 实现一个ajax
+```javaScript
+//封装一个ajax请求
+function ajax(options) {
+    //创建XMLHttpRequest对象
+    const xhr = new XMLHttpRequest()
+
+
+    //初始化参数的内容
+    options = options || {}
+    options.type = (options.type || 'GET').toUpperCase()
+    options.dataType = options.dataType || 'json'
+    const params = options.data
+
+    //发送请求
+    if (options.type === 'GET') {
+        xhr.open('GET', options.url + '?' + params, true)
+        xhr.send(null)
+    } else if (options.type === 'POST') {
+        xhr.open('POST', options.url, true)
+        xhr.send(params)
+
+    //接收请求
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            let status = xhr.status
+            if (status >= 200 && status < 300) {
+                options.success && options.success(xhr.responseText, xhr.responseXML)
+            } else {
+                options.fail && options.fail(status)
+            }
+        }
+    }
+}
+
+// 使用方式
+ajax({
+    type: 'post',
+    dataType: 'json',
+    data: {},
+    url: 'https://xxxx',
+    success: function(text,xml){//请求成功后的回调函数
+        console.log(text)
+    },
+    fail: function(status){////请求失败后的回调函数
+        console.log(status)
+    }
+})
+```
+- 应用场景
+  - 搜索联想（输入框提示）。
+  - 表单提交（无刷新保存）。
+  - 局部刷新（分页、加载更多）。
+  - 后台数据拉取（监控、仪表盘）
+
+### 15.说说你对事件循环的理解
+1. JavaScript 是单线程的
+   1. 主线程一次只能执行一个任务，避免了多线程的锁和资源抢占问题。
+   2. 但这也带来一个问题：如何处理异步 I/O、定时器、DOM 事件？
+
+2. 事件循环的调度过程
+   1. 执行栈（同步任务）先执行完；
+   2. 检查 微任务队列（如 Promise.then、MutationObserver、queueMicrotask），依次执行直到清空；
+   3. 取出一个 宏任务（如 setTimeout、setInterval、setImmediate、MessageChannel、I/O），放到执行栈执行；
+   4. 重复步骤 2、3 → 形成循环。
+
+3. 微任务 vs 宏任务
+   1. 微任务：优先级高，事件循环每一轮都会在宏任务前清空微任务队列。
+   2. 宏任务：来自宿主环境（浏览器 / Node.js），比如定时器、事件回调。
+
+#### <font color="yellow">async和await</font>
+- async/await 是 Promise 的语法糖，让异步代码写起来像同步代码。
+- async 函数始终返回一个 Promise；await 会暂停函数执行，把后续代码放入微任务队列，在 Promise resolve/reject 后继续。
+- 相比 .then()，async/await 可读性更高，支持 try...catch 做同步风格的错误处理。
+- 实际开发中，可以结合 Promise.all 做并发，提高性能。
+##### 概念
+1. async 函数
+   1. 用 async 声明的函数一定返回一个 Promise。
+   2. 如果函数内部返回非 Promise 值，会被 Promise.resolve() 包装。
+2. await 表达式
+   1. await 用于等待一个 Promise 结果。
+   2. 会暂停 async 函数的执行，把后续代码放入 微任务队列，等 Promise 完成后再继续。
+   3. await 只能在 async 函数中使用
+
+### 16. Javascript本地存储的方式有哪些？区别及应用场景？
+cookie、localStorage、sessionStorage、indexedDB、Cache Storage
+#### cookie
+- 特点
+  - 主要用于 状态管理（会话标识、登录信息）。
+  - 大小限制约 4KB，会随请求头自动携带到服务器。
+- 常用属性：
+  - Expires 用于设置 Cookie 的过期时间。`Expires=Wed, 21 Oct 2015 07:28:00 GMT`
+  - Max-Age 用于设置在 Cookie 失效之前需要经过的秒数（优先级比Expires高）`Max-Age=604800`
+  - Domain 指定了 Cookie 可以送达的主机名
+  - Path 指定了一个 URL 路径，这个路径必须出现在要请求的资源的路径中才可以发送 Cookie 首部`Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部`
+  - 标记为 Secure 的 Cookie 只应通过被HTTPS协议加密过的请求发送给服务端
+- 关于cookie的使用如下：
+  - `document.cookie = '名字=值';`
+  - 关于cookie的修改，首先要确定**domain和path属性都是相同**的才可以，其中有一个不同得时候都会创建出一个新的cookie。
+  ``` javaScript
+  Set-Cookie:name=aa; domain=aa.net; path=/  # 服务端设
+  document.cookie =name=bb; domain=aa.net; path=/  # 客户端设置
+  ```
+  - 删除：给cookie设置过期事件
+
+#### localStorage
+- 特点：
+  - 永久存储（除非手动清理或浏览器清空缓存）。
+  - 存储的信息在同一域中是共享的，存储内容多的话会消耗内存空间，会导致页面变卡
+  - 大小约 5~10MB，同源策略限制。
+- 缺点：
+  - 无法像Cookie一样设置过期时间
+  - 只能存入字符串，无法直接存对象
+- 使用：
+  - 设置`localStorage.setItem('username','cfangxu');`
+  - 获取`localStorage.getItem('username')`
+  - 获取键名`localStorage.key(0) //获取第一个键名`
+  - 删除`localStorage.removeItem('username')`
+  - 一次性清除所有存储`localStorage.clear() `
+
+#### sessionStorage
+- 会话级存储，页面关闭即清除。
+- 其他特性与 localStorage 一致（大小、API）。
+
+#### indexedDB
+- 浏览器内置的 非关系型数据库，可存储大量结构化数据。
+- 支持事务、索引、查询，比 localStorage 更强大。
+- 优点：
+  - 储存量理论上没有上限
+  - 所有操作都是异步的，相比 LocalStorage 同步操作性能更高，尤其是数据量较大时
+  - 原生支持储存JS的对象
+  - 是个正经的数据库，意味着数据库能干的事它都能干
+- 缺点：
+  - 操作非常繁琐,本身有一定门槛
+
+#### Cache Storage (Service Worker)
+- PWA 常用，用于缓存请求和响应。
+- 常用于 离线应用 和 前端资源缓存。
+
+#### 区别：
+关于cookie、sessionStorage、localStorage三者的区别主要如下：
+
+- 存储大小： cookie数据大小不能超过4k，sessionStorage和localStorage 虽然也有存储大小的限制，但比cookie大得多，可以达到5M或更大
+
+- 有效时间：
+  - localStorage  存储持久数据，浏览器关闭后数据不丢失除非主动删除数据； 
+  - sessionStorage  数据在当前浏览器窗口关闭后自动删除；
+  - cookie设置的cookie过期时间之前一直有效，即使窗口或浏览器关闭
+
+- 数据与服务器之间的交互方式， 
+  - cookie的数据会自动的传递到服务器，服务器端也可以写cookie到客户端； 增加网络开销
+  - sessionStorage和localStorage不会自动把数据发给服务器，仅在本地保存，性能更优
+
+- 安全性
+  - Cookie 可能被劫持（XSS 攻击），敏感信息应搭配 HttpOnly + Secure
+  - localStorage/sessionStorage 也可被脚本读取，适合存储非敏感数据。
+
+- 异步性
+  - localStorage/sessionStorage 是 同步 API，大数据操作会阻塞主线程。
+  - IndexedDB 是 异步 API，不会阻塞。
+
+#### 实际应用场景
+
+1. Cookie
+   1. 用于 **会话管理**（如存放 sessionId、JWT）。
+   2. 不适合存放大数据。
+
+2. localStorage
+   1. 存储持久化数据：用户偏好设置、主题、上次浏览位置。
+   2. 适合长期保留的数据。
+
+3. sessionStorage
+   1. 存储临时数据：表单填写进度、页面间传参（在同一标签页内）。
+   2. 页面关闭后清除。
+
+4. IndexedDB
+   1. 大型数据存储：离线应用、缓存数据表、存储二进制文件。
+   2. 典型案例：离线笔记应用、音乐/视频缓存。
+
+5. Cache Storage
+   1. 用于 PWA 离线缓存，存储静态资源（HTML、JS、CSS、图片）。
+   2. 结合 Service Worker 实现离线访问。
+
+### 17. 说说 Javascript 数字精度丢失的问题，如何解决？
+- JavaScript 的数字采用 IEEE 754 双精度浮点数存储，最多只能精确表示 15-16 位十进制数字。
+- JS Number.MAX_SAFE_INTEGER = 2^53 - 1，超过这个值就可能丢失精度。
+- 精度丢失的原因是**二进制无法精确表示大部分十进制小数**，比如 0.1 + 0.2 !== 0.3。
+
+- 实际开发问题：
+  - 金额运算：0.1 元、0.2 元的加减。
+  - 大整数处理：订单号、用户 ID（可能超过 2^53）。
+  - 前端和后端数据交互时可能出现“金额错乱”或“大整数 ID 不准确”的 bug。
+
+- 解决方式：
+  - 转换为整数计算（以“分”为单位）：把小数转成整数再运算，再除以倍数。
+  - 使用第三方库：decimal.js、bignumber.js、math.js
+  - 处理大整数：使用 BigInt（ES2020） 来处理超过 2^53 的整数。（**注意Bigint不能和Number混用**）
+
+ ### 18. web常见的攻击方式有哪些？如何防御？
+ #### XSS（跨站脚本攻击）
+ - 原理：攻击者将恶意脚本（JS/HTML）注入到网页，用户浏览时执行。
+ - 攻击目标：盗取存储在客户端的cookie或者其他网站用于识别客户端身份的敏感信息。一旦获取到合法用户的信息后，攻击者甚至可以假冒合法用户与网站进行交互
+ - 危害：盗取 Cookie、伪造请求、劫持会话、挂马。
+ - 防御：
+   - 对用户输入内容做 **转义 / 过滤**（HTML、JS、CSS、URL）。
+     - 转义：把用户输入的特殊字符（如 <, >, ", '）转成安全的 HTML 实体，避免被浏览器解析成脚本。
+     - 过滤：直接剔除危险的标签或属性，例如 <script>、onerror、javascript:。
+   - 使用 Content-Security-Policy (CSP:内容安全策略，通过 HTTP 响应头或 <meta> 标签告诉浏览器：哪些资源（JS、CSS、图片等）允许加载、执行。) 限制可执行脚本来源。
+   ``` javaScript
+   Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com
+   //表示：只允许加载本站和 cdn.example.com 的 JS，不允许执行内联脚本。
+   ```
+    
+   - 对敏感信息（如 Cookie）设置 HttpOnly(表示 这个 Cookie 不能被 JS 访问)，防止被 JS 读取。
+
+#### CSRF（跨站请求伪造）
+- 原理：利用用户已登录的身份，诱导其在不知情情况下发起恶意请求。(冒充用户对被攻击的网站执行某项操作)
+- 危害：伪造转账、改密码、发帖等操作。
+- 防御：
+  - 关键请求必须验证 Referer / Origin。
+    - Referer：表示当前请求来自哪个页面。
+    - Origin：表示请求的协议 + 域名 + 端口，更严格。
+- 阻止不明外域的访问
+  - 同源检测
+  - Samesite Cookie(用来控制跨站请求时是否带上 Cookie);`Set-Cookie: key=value; SameSite=Strict。`
+    - 取值：Strict：完全禁止跨站请求携带 Cookie。
+    - Lax：GET 请求允许，POST/PUT 等禁止（默认）
+    - None：允许，但必须同时 Secure（HTTPS）
+提交时要求附加本域才能获取的信息
+  - 在请求中加入 CSRF Token(服务端随机生成一个 不可预测的 Token，放到页面或 Cookie 里。每次请求都必须带上，服务器验证是否匹配。) 并进行校验。
+  - 双重Cookie验证
+
+#### SQL 注入
+- 原理：攻击者在输入中注入 SQL 语句，修改数据库查询逻辑。
+- 危害：泄露、篡改、删除数据库。
+- 防御：
+  - 参数化查询 / 预编译语句，不要拼接 SQL。
+  - 严格限制数据库权限。
+  - 对输入内容进行 类型校验（如 ID 必须为数字）。
+
+#### 点击劫持（Clickjacking）
+- 原理：攻击者用一个透明 iframe 嵌套受害网站，引诱用户点击。
+- 危害：误点“转账/授权/删除”。
+- 防御：
+  - 在响应头中加入：`X-Frame-Options: DENY   # 禁止页面被嵌套`
+    - `X-Frame-Options`控制页面是否允许被 <iframe> 嵌套。取值:DENY：完全禁止；SAMEORIGIN：同源页面可以嵌套。
+  - 或使用 `frame-ancestors 'none'`（CSP 中）。
+
+#### 中间人攻击（MITM）
+- 原理：攻击者拦截并篡改客户端和服务器之间的数据。
+- 危害：窃听、篡改内容、伪造身份。
+- 防御：
+  - 全站使用 HTTPS，避免明文传输。
+  - 开启 HSTS（强制使用 HTTPS）：
+`Strict-Transport-Security: max-age=31536000; includeSubDomains #表示 1 年内必须使用 HTTPS，所有子域名也适用。`
+
+#### DDoS（分布式拒绝服务攻击）
+- 原理：大量请求耗尽服务器资源。
+- 危害：服务器宕机，服务不可用。
+- 防御：
+  - 限流、熔断、验证码、CDN。
+  - 服务端做 IP 黑名单 / WAF（Web 应用防火墙）。
+
+#### 实际应用（前端落地措施）
+
+1. 表单输入处理
+  - 永远不要相信用户输入，做严格校验。
+  - 富文本（如 Markdown 编辑器）要用 白名单过滤库（如 DOMPurify）。
+
+2. 接口请求安全
+   1. 给所有敏感操作加上 CSRF Token。
+   2. 请求必须使用 HTTPS。
+
+3. 前端配置安全响应头
+   1. CSP 限制脚本加载来源。
+   2. X-Frame-Options: DENY 防止点击劫持。
+   3. Strict-Transport-Security 强制 HTTPS。
+
+4. 敏感信息保护
+   1. Cookie 设置 HttpOnly + Secure。
+   2. 不在 LocalStorage 保存 Token（容易被 XSS 窃取）。
+
+**前端防御的核心是 输入校验 + 输出转义 + 安全头配置 + Cookie 策略，而服务端要配合做 权限控制、限流、防火墙**
