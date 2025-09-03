@@ -1,0 +1,39 @@
+<!-- 请补全JavaScript代码，要求在页面上渲染出一个直角三角形，三角形换行要求使用"br"实现。三角形如下：
+*
+**
+*** -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <div class='triangle'></div>
+    <div class='triangle2'>
+        </div>
+<script>
+    var triangle = document.querySelector('.triangle');
+    let str = ''
+    for (let i = 1; i <= 3; i++) {
+        str += '*'.repeat(i) + '<br>'
+    }
+    triangle.innerHTML = str
+        
+    // 或者两层循环
+    var triangle2 = document.querySelector('.triangle2');
+            let str2 = ''
+            for (let i = 1; i <= 3; i++) {
+                for (let j = 1; j <= i; j++) {
+                    str2 += '*'
+                }
+                str2 += '<br>'
+            }
+            triangle2.innerHTML = str2
+</script>
+
+
+</body>
+
+</html>

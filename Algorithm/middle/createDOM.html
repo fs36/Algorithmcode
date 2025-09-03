@@ -1,0 +1,80 @@
+<!-- 请补全JavaScript代码，要求将对象参数转换为真实的DOM结构并返回。
+注意：
+1. tag为标签名称、props为属性、children为子元素、text为标签内容 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+
+    <script>
+        var vnode = {
+            tag: 'ul',
+            props: {
+                class: 'list'
+            },
+            text: '',
+            children: [
+                {
+                    tag: "li",
+                    props: {
+                        class: "item"
+                    },
+                    text: '',
+                    children: [
+                        {
+                            tag: undefined,
+                            props: {},
+                            text: '牛客网',
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    tag: "li",
+                    props: {},
+                    text: '',
+                    children: [
+                        {
+                            tag: undefined,
+                            props: {},
+                            text: 'nowcoder',
+                            children: []
+                        }
+                    ]
+                }
+            ]
+        }
+        const _createElm = vnode => {
+            // 补全代码
+            if(!vnode.tag){
+                // 文本节点
+                return document.createTextNode(vnode.text)
+            }
+            // 元素节点
+            let el = document.createElement(vnode.tag)
+            for(let key in vnode.props){
+                // 设置属性el.setAttribute(key, value)
+                el.setAttribute(key,vnode.props[key])
+            }
+            
+            if(vnode.text) {
+                // 设置文本内容
+                el.appendChild(document.createTextNode(vnode.text))
+            }
+            vnode.children.forEach(child => {
+                //
+                el.appendChild(_createElm(child))
+            })
+            return el
+        }
+        // 如果有 tag → 创建元素节点。
+        // 如果 tag 为空 → 创建文本节点。
+    </script>
+</body>
+
+</html>
+
