@@ -1,0 +1,45 @@
+<!-- 场景描述：在一个 HTML 页面中，有一个无序列表（ul），其中包含了一些项目（li）。每个项目都有一个文本内容和一个唯一的 ID。你需要编写一个 JavaScript 函数来提取列表中所有项目的文本内容，并将它们按照 ID
+进行排序，然后将排序后的文本内容重新渲染回去。
+代码实现：补全sortAndReturnTextContent函数，实现功能 -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+</head>
+
+<body>
+    <ul id="myList">
+        <li id="item1">项目 1</li>
+        <li id="item3">项目 3</li>
+        <li id="item2">项目 2</li>
+        <li id="item4">项目 4</li>
+    </ul>
+
+    <script>
+         function sortAndReturnTextContent() {
+                const ul = document.getElementById('myList');
+                const items = Array.from(ul.children); // HTMLCollection 转数组
+
+                // 按 li 的 id 中的数字排序
+                items.sort((a, b) => {
+                    const idA = parseInt(a.id.replace('item', ''), 10);
+                    const idB = parseInt(b.id.replace('item', ''), 10);
+                    return idA - idB;
+                });
+
+                // 清空原 ul，再插入排序后的 li
+                ul.innerHTML = '';
+                items.forEach(item => ul.appendChild(item));
+        }
+        sortAndReturnTextContent()
+    </script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!-- 倒计时是web开发中常见的组件，请完成second和render两个函数，完成倒计时的显示部分
+1、second函数的输入为整数，返回{day: Int, hour: Int, min: Int, second: Int}
+2、render函数的输入为second函数的输出，将数据在页面对应的DOM元素上显示出来，格式如html所示
+3、如果day为0，隐藏对应的DOM元素，否则显示（请直接使用已经实现的css代码）
+4、数值不足两位，前面补充0 -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* 填写样式 */
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 填写标签 -->
+    <div id="jsCountdown">
+        <span id="day"></span>
+        <span id="hour"></span>
+        <span id="min"></span>
+        <span id="sec"></span>
+    </div>
+    <script type="text/javascript">
+        // 填写JavaScript
+        function pad(number){
+            return number < 10 ? '0' + number : number;
+        }
+        function second(second) {
+            let day = Math.floor(second / (24 * 3600));
+            let hour = Math.floor((second % (24 * 3600)) / 3600);
+            let min = Math.floor((second % 3600) / 60);
+            let sec = second % 60;
+            return {
+                day: day,
+                hour: hour,
+                min: min,
+                second: sec
+            };
+
+        }
+
+        function render(data) {
+            let day = document.getElementById("day");
+            let hour = document.getElementById("hour");
+            let min = document.getElementById("min");
+            let sec = document.getElementById("sec");
+            if (data.day === 0) {
+                day.classList.add("hide");
+            } else {
+                day.classList.remove("hide");
+                day.innerText = pad(data.day) + "天";
+            }
+            hour.innerText = pad(data.hour) + ":";
+            min.innerText = pad(data.min) + ":";
+            sec.innerText = pad(data.second);
+        }
+    </script>
+</body>
+
+</html>
