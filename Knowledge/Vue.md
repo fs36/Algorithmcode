@@ -348,3 +348,234 @@ export default {
 ![alt text](image-6.png)
 
 ## 12.Vue中的$nextTick有什么作用？
+### 作用
+- 官方定义：在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM
+- 理解：
+  - “Vue 内部的 DOM 更新是异步的，数据改了不会立刻反映在 DOM 上。如果你**马上去读 DOM，会拿到旧值**。想等页面更新完成再操作 DOM，就用 nextTick。”
+  - `$nextTick` 用于在 **DOM 更新完成后执行代码**，避免操作旧 DOM。
+- 表达：Vue2 `this.$nextTick(callback)`；Vue3 `import { nextTick } from 'vue'`
+
+### 使用场景
+1. 数据更新后，获取最新的 DOM（确保获取到的数据是更改过后的数据，不是旧数据）
+2. 第三方插件初始化（确保 DOM 已经渲染出来，再初始化插件。）
+3. 动画、滚动（保证元素渲染之后再滚动）
+
+## 12. 你知道vue中key的原理吗？说说你对它的理解？
+1. key 的作用
+key 的本质是一个 **唯一标识**。
+Vue 在进行虚拟 DOM diff 时，会通过 key 来判断两个节点是否相同：
+- 如果 key 相同，Vue 认为是同一个节点，只会更新内容，不会销毁和重建。
+- 如果 key 不同，Vue 会销毁旧节点，创建新节点。
+  
+2. key 的原理（虚拟 DOM diff 流程）
+Vue 会对比新旧虚拟 DOM 的子节点。
+- 如果有 key：
+  - 通过 key 来快速定位对应的旧节点，进行复用或替换。
+  - 避免错误复用，减少 DOM 操作。
+- 如果没有 key（默认用索引值）：
+  - Vue 会采用就地更新策略：复用相同位置的节点。
+  - 可能导致错误复用，比如输入框值错乱。
+3. 示例
+假设有一个简单的列表切换：
+``` html
+<template>
+  <div>
+    <div v-if="toggle">
+      <input placeholder="请输入A" />
+    </div>
+    <div v-else>
+      <input placeholder="请输入B" />
+    </div>
+  </div>
+</template>
+```
+如果不给 key：
+Vue 认为这两个 `<input>` 是同一个节点，只会复用，导致切换时输入框内容还在。
+
+如果加了 key：
+``` html
+<div v-if="toggle">
+  <input key="A" placeholder="请输入A" />
+</div>
+<div v-else>
+  <input key="B" placeholder="请输入B" />
+</div>
+```
+Vue 会销毁旧的 `<input>`，创建新的 `<input>`，输入内容不会错乱。
+
+4. 总结
+- key 的作用：**高效更新、避免错误复用**。
+- 最佳实践：
+  - 列表渲染时，推荐使用业务唯一标识（如 id）作为 key。
+  - 避免用 index 作为 key（除非静态列表、不涉及节点复用）。
+  - 切换相似节点时加 key，确保重新渲染。
+
+## 13. 什么是虚拟DOM？如何实现一个虚拟DOM？说说你的思路
+- 概念：虚拟 DOM（Virtual DOM，简称 VDOM）就是**用 JavaScript 对象来模拟真实 DOM 结构**。
+- 本质：一个轻量级的** JS 对象（树形结构）**，记录了元素的标签、属性、子节点等信息。
+- 目的：
+  - 避免频繁操作真实 DOM（性能消耗大）。
+  - 通过 diff 算法，找到最小化更新的方式，再批量更新真实 DOM。
+- 优点：
+  - **性能优化**
+    - 直接操作 DOM → 浏览器频繁触发 **回流和重绘**，很耗性能。
+    - 虚拟 DOM → 先在 JS 内存中 diff 出差异，再一次性更新。
+  - 跨平台渲染
+    - 有了 VDOM，React/Vue 不仅能渲染到浏览器，还能渲染到 原生应用（React Native）、小程序，甚至 服务端渲染。
+- 实现思路：
+   - `VNode`：定义虚拟节点结构(tag、dada、text、children、elm、context)。
+   - `render`：把虚拟 DOM 渲染成真实 DOM。
+   - `diff & patch`：对比新旧虚拟 DOM 树，最小化更新真实 DOM。
+
+## 14. SSR解决了什么问题？有做过SSR吗？你是怎么做的？
+1. SSR（Server-Side Rendering，服务端渲染） 指的是：在服务端直接把 **渲染好的 HTML** 返回给浏览器，而不是返回一个空壳 + JS 再去渲染。
+
+2. 它主要解决了两个问题：
+- 首屏加载慢
+  - 传统 SPA：
+    - 浏览器先拿到一个空 HTML（只有 <div id="app"></div>）。
+    - 再下载 JS，执行后才渲染出内容。
+    - 首屏白屏时间长。
+  - SSR：服务器直接返回带数据的 HTML，用户几乎立即看到内容，首屏快。
+- SEO 不友好
+  - SPA：内容由 JS 渲染出来，部分搜索引擎（尤其是国内）不解析 JS → 抓不到内容。
+  - SSR：返回的 HTML 就包含内容 → 搜索引擎能抓取。
+归纳一句话：SSR 主要解决了**首屏性能优化和 SEO 问题**。
+
+3. 缺点
+   1. 开发复杂度增加
+      1. 代码需要**同时在服务器和客户端运行**，需要做兼容处理
+      2. 同时需要区分仅在客户端运行和仅在服务器运行的逻辑
+      3. 第三方库的兼容问题
+   2. 服务端压力大
+      1. 每次请求都要 执行 Vue/React 渲染逻辑，生成 HTML → **CPU 和内存消耗高**。
+   3. 缓存与性能问题
+      1. SSR 返回的 HTML 通常是 动态生成 的，不容易缓存。如果缓存没做好，大量请求会直接打到服务端，影响性能。
+所以使用SSR之前要谨慎考虑
+
+4. 如何实现SSR？
+   1. Vue SSR 可以用 `vue-server-renderer` 自己实现，
+   2. 基本流程是**服务端执行 Vue 渲染 → 返回 HTML → 客户端 hydrate 激活**。
+
+## 15. 说下你的vue项目的目录结构，如果是大型项目你该怎么划分结构和划分组件呢？
+![alt text](image-7.png)
+- 基础目录包括 **api、components、views、router、store、utils、assets** 等。
+- 如果是大型项目，我会按 **业务模块化** 管理（user、product、order），公共组件和工具抽离出来，布局单独维护，保证团队协作和扩展性。
+- 在组件划分上，我会遵循 页面组件(View)、业务组件(modules)、通用基础组件(components) 的分层思想，结合命名规范提升可维护性。
+
+## 16. vue项目如何部署？有遇到布署服务器后刷新404问题吗？
+### Vue 项目部署流程
+
+1. 打包构建
+   - 执行：`npm run build`
+   - 生成 dist/ 文件夹（生产环境静态资源）。
+2. 上传到服务器
+   - 将 dist 文件夹里的内容上传到服务器（Nginx、Apache、Node.js 静态服务等）。
+   - 服务器配置
+   - Nginx（常见）：
+``` javaScript
+server {
+  listen 80;
+  server_name yourdomain.com;
+
+  root /var/www/your-vue-app/dist;
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
+```
+
+关键在于 try_files，它保证前端路由不会触发 404。
+
+Node.js (express-static)：
+```javaScript
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(3000, () => console.log('Running on http://localhost:3000'));
+```
+### 刷新后 404 的原因
+  - Vue 是 前端路由 (Vue Router) 控制的 SPA。
+  - 当你直接输入 http://example.com/user/123 并刷新时，请求会直接发送到后端服务器，但后端没有 /user/123 这个路由 → 返回 404。
+  - 而实际上，这个路由应该由前端 Vue Router 处理。
+### 解决办法
+1. history 模式下必须配置后端
+  - Nginx: try_files $uri $uri/ /index.html;
+  - Express: 捕获 * 路由返回 index.html
+2. 使用 hash 模式
+- Vue Router 默认是 hash 模式，例如 /#/user/123
+这种模式刷新不会 404，因为服务端只看到 /。
+- 服务器端重写
+- 把所有未知路由都重定向到 index.html，交给前端处理。
+
+## 17. Vue3有了解过吗？能说说跟Vue2的区别吗？
+- 速度更快
+- 体积减少
+- 更易维护
+- 更接近原生
+- 更易使用
+![alt text](image-8.png)
+Vue3 相比 Vue2 的最大变化有两点：第一是 响应式原理 从 defineProperty 升级为 Proxy，解决了对象/数组属性监听的局限性；第二是 语法 API，引入了 Composition API，让逻辑更加清晰和可复用。除此之外，Vue3 在性能上做了优化，引入了 Fragment、Teleport、Suspense 等新特性，同时体积更小，TypeScript 支持更好，整体更适合大型项目。
+
+## 18. Vue3.0的设计目标是什么？做了哪些优化? 
+Vue3 的设计目标是 **更小、更快、更易维护、更好的逻辑复用和更强大功能**。在优化上，核心是：响应式系统由 Object.defineProperty 升级为 Proxy；编译器引入 PatchFlag 静态标记和静态提升，提升 diff 性能；架构支持 Tree-shaking 和模块化；并且增加了 Fragment、Teleport、Suspense 等新特性，同时 TypeScript 支持更好。
+![alt text](image-9.png)
+
+## 19. Vue3.0 性能提升主要是通过哪几方面体现的？
+### 编译阶段
+1. diff算法优化
+   1. vue3在diff算法中相比vue2增加了**静态标记**
+   2. 静态标记作用：会**发生变化**的地方添加一个**flag标记**，下次发生变化的时候**直接找该地方进行比较**
+   3. **已经标记静态节点**的p标签在diff过程中则**不会比较**，把性能进一步提高
+2. 静态提升
+   1. Vue3中对不参与更新的元素，会做静态提升，**只会被创建一次，在渲染时直接复用**
+   2. 这样就免去了重复的创建节点，优化了运行时候的内存占用
+3. 事件监听缓存
+   1. 默认情况下绑定事件行为会被视为动态绑定，所以每次都会去追踪它的变化，开启了事件监听缓存后，没有了静态标记。也就是说下次diff算法的时候直接使用
+4. SSR优化
+   1. 当静态内容大到一定量级时候，会用createStaticVNode方法在客户端去生成一个static node，这些静态node，会被直接innerHtml，就不需要创建对象，然后根据对象渲染
+
+### 源码体积
+- Vue3 核心库更轻量（gzip 约 10kb），减少加载时间
+- 支持按需引入模块，未使用的部分不会打包进项目
+- Tree-shaking 友好：未使用的 API 不会打包进最终 bundle
+
+### 响应式系统
+响应式系统由 Object.defineProperty 升级为 Proxy，支持完整的对象/数组监听，依赖收集更高效；
+
+## 20. Vue3.0 所采用的 Composition Api 与 Vue2.x 使用的 Options Api 有什么不同？
+通常使用Vue2开发的项目，普遍会存在以下问题：
+- 代码的可读性随着组件变大而变差
+- 每一种代码复用的方式，都存在缺点
+- TypeScript支持有限
+![alt text](image-10.png)
+
+- 在逻辑组织和逻辑复用方面，Composition API是优于Options  API
+- 因为Composition API几乎是函数，会有更好的类型推断。
+- Composition API 对 tree-shaking 友好，代码也更容易压缩
+- Composition API中见不到this的使用，减少了this指向不明的情况
+
+## vue3 diff算法
+1. 预处理前置节点
+   1. 定义一个i，记录前置索引值
+   2. 从前到后对比节点，相同打patch，无需diff，直接更新
+   3. 不一样就停止对比，记录i的值，进行预处理后置节点
+2. 预处理后置节点
+   1. 定义e1（旧节点列表的后置索引值）、e2（新节点列表的后置索引值）
+   2. 从后向前对比节点，相同打patch，无需diff，直接更新
+   3. 不一样，记录e1、e2的值
+3. 处理仅有新增节点情况（i>e1 && 1<=e2）
+   1. 直接遍历，把新节点挂载到新的DOM树
+4. 处理仅有卸载节点的情况（i>e2 && i<=e1）
+   1. 直接遍历，把多余节点卸载掉
+5. 处理其他情况（新增、卸载、移动）
+   1. 通过 LIS（最长递增子序列算法） 找到**最长不需要移动的序列**，然后只移动必要的节点，减少 DOM 操作。
