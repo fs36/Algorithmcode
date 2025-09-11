@@ -1,21 +1,19 @@
 # JS基础相关问题
 <font color="red">红色：应该回答出来</font>
-<br>
-<font color="yellow">黄色：不知道的内容</font>
+绿色：不知道的内容
 
    ### 1. 说说JavaScript中的数据类型？区别？
    #### 数据类型分类
    - 基本数据类型：String number（有NaN、infinity特殊值，注意边界） Boolean null（空值） undefined（有声明未赋值） BigInt（表示任意大小的整数） <font color="red">Symbol（表示唯一标识符）</font>
-     - 存放在栈；<font color="yellow">赋值是按值传递，修改不会影响原值。</font>
+     - 存放在栈；<font color="green">赋值是按值传递，修改不会影响原值。</font>
    - 引用数据类型：targetect function <font color="red">Array；正则对象-RegExp，日期对象-Date、Map、Set等对象类型</font>
-     - 存放在堆；<font color="yellow">赋值是按引用传递，修改会影响原对象。</font>
-     - 
+     - 存放在堆；<font color="green">赋值是按引用传递，修改会影响原对象。</font>
 #### 数据类型判别：
-   - typeof 判断基本数据类型，但是不能判断 null <font color="yellow">通过二进制判断</font>
+   - typeof 判断基本数据类型，但是不能判断 null <font color="green">通过二进制判断</font>
      - 不能将targetect、Array和Null区分，都返回targetect
    - Array.isArray() 识别数组类型
-   - instanceof 判断引用数据类型<font color="yellow">检测当前实例是否属于这个类的（原型链）</font>
-   - <font color="yellow">targetect.prototype.toString.call() 精准判断数据类型； 返回当前实例所属类信息</font>
+   - instanceof 判断引用数据类型<font color="green">检测当前实例是否属于这个类的（原型链）</font>
+   - <font color="green">targetect.prototype.toString.call() 精准判断数据类型； 返回当前实例所属类信息</font>
 #### 类型转换
 1. 显式转换：
    - Number():
@@ -23,16 +21,16 @@
      - 空字符串、false、null转为0
    - String()
    - Boolean()
-   - <font color="yellow">parseInt()
+   - <font color="green">parseInt()
      - 逐个解析字符，遇到不能转换的字符就停下来返回已解析成功的内容
    - BigInt()</font>
 2. 隐式转换：
    1. 自动转为布尔值：undefined、null、false、+0、-0、NaN、""，除了上面几种会被转化成false，其他都换被转化成true
    2. 自动转为字符串：常发生在+运算中，一旦存在字符串，则会进行字符串拼接操作
-   3. <font color="yellow">自动转为数值：除了+有可能把运算子转为字符串，其他运算符都会把运算子自动转成数值
+   3. <font color="green">自动转为数值：除了+有可能把运算子转为字符串，其他运算符都会把运算子自动转成数值
    4. == 会进行隐式转换之后再来判断值是否相等</font>
 
-### 2. avscript数组的常用方法有哪些？
+### 2. javscript数组的常用方法有哪些？
 
 #### 2.1 增删改类（影响原数组）
 - push() / pop()：末尾添加/删除
@@ -59,6 +57,9 @@
 - filter(callback)：筛选元素,返回满足条件的元素数组
 - some(callback)：是否有任意元素满足条件，返回true/false
 - every(callback)：是否所有元素满足条件,返回true/false
+- forEach和map的区别
+  - ![image-20250910154612501](C:\Users\zxw36\AppData\Roaming\Typora\typora-user-images\image-20250910154612501.png)
+
 
 #### <font color="red">2.5 归并/计算类（不修改原数组）</font> 作用：购物车等数据计算
 
@@ -73,7 +74,7 @@
 
 - Array.from()：将类数组/可迭代对象转数组
 - Array.of()：创建数组
-- <font color="yellow" >flat(depth) / flatMap(callback)：扁平化数组</font>
+- <font color="green" >flat(depth) / flatMap(callback)：扁平化数组</font>
   
 ### 3. Javascript字符串的常用方法有哪些？
 JavaScript 中字符串（String）是 不可变的（immutable），**所以所有字符串方法都 不会修改原字符串，而是返回一个新的字符串或结果。**
@@ -120,7 +121,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 ### 4. == 和 ===区别，分别在什么情况使用？
 #### 区别
 1. == 先进行类型隐式转换再判断值是否相等
-   <font color="yellow">- 转换情况：
+   <font color="green">- 转换情况：
      - 两个都为简单类型，字符串和布尔值都会转换成数值，再比较
      - 简单类型与引用类型比较，调用对象的 valueOf() 方法获取其原始类型的值，再比较
      - 两个都为引用类型，则比较它们是否指向同一个对象
@@ -130,7 +131,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 2. === 不进行类型转换，直接判断 **值+类型** 是否相等;
    - undefined 和 null 与自身严格相等
 
-#### <font color="yellow">使用情况</font>
+#### <font color="green">使用情况</font>
 - 推荐优先使用 ===（严格相等） 
   - 避免类型转换带来的意外结果。
   - 代码更可读，更安全。
@@ -143,7 +144,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
   }
   ```
 
-### 5. <font color="yellow">深拷贝浅拷贝的区别？如何实现一个深拷贝？</font>
+### 5. <font color="green">深拷贝浅拷贝的区别？如何实现一个深拷贝？</font>
 对于基本类型来说，浅拷贝和深拷贝是一样的，都是拷贝值
 #### 浅拷贝
 - 定义：只复制对象的第一层属性，如果属性是引用类型（对象/数组），只会复制引用地址。不会开辟新的内存空间，共享内存空间。
@@ -189,7 +190,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
   - 当变量在当前作用域找不到时，沿作用域链逐级向上查找。
 - 实际运用：变量查找、闭包、变量提升
 
-### <font color="yellow">8. JavaScript原型，原型链 ? 有什么特点？</font>
+### <font color="green">8. JavaScript原型，原型链 ? 有什么特点？</font>
 - **原型（对象属性共享机制）**：Object.prototype
   - 作用：实现对象之间属性和方法的共享，节省内存。
 - **原型链（查找机制）**：当访问对象的属性或方法时，如果对象本身没有，则会沿着 Prototype 链向上查找，直到找到 Object.prototype，再找不到返回 undefined。
@@ -208,7 +209,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 - 构造函数、原型和实例之间的关系 
   - 通过new 来创建实例对象
   - 构造函数每个对象的__proto__都是指向它的构造函数的原型对象prototype的
-`person1.__proto__ === Person.prototype`
+    `person1.__proto__ === Person.prototype`
     - 使用 Object.getPrototypeOf可以获得原型
   - 每个函数拥有prototype属性，指向原型对象。同时，原型对象有一个自有属性constructor，这个属性指向该函数
 
@@ -218,7 +219,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 ![JavaScript Prototype Chain](https://segmentfault.com/img/remote/1460000042725377)
 ![alt text](image-1.png)
 
-### <font color="yellow">9. Javascript如何实现继承？</font>
+### <font color="green">9. Javascript如何实现继承？</font>
 - 继承的概念：子类可以继承父类的属性和方法，同时也可以重新定义父类的某些属性，并重写或覆盖某些属性和方法
 - 实现方式：
   - 原型链继承
@@ -238,7 +239,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
         console.log(`Hello, my name is ${this.name}`);
       }
     }
-
+    
     class Child extends Parent {
       constructor(name, age) {
         super(name); // 调用父类构造函数
@@ -248,13 +249,13 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
         console.log(`I am ${this.name}, and I am ${this.age} years old.`);
       }
     }
-
+    
     // 示例
     const child = new Child("Alice", 10);
     child.greet(); // 输出: Hello, my name is Alice
     child.introduce(); // 输出: I am Alice, and I am 10 years old.
     ```
-### <font color="yellow">10. 谈谈this对象的理解？</font>
+### <font color="green">10. 谈谈this对象的理解？</font>
 - 定义：this 关键字是**函数运行时自动生成**的一个内部对象，只能在函数内部使用，总**指向调用它的对象**
 - this在函数执行过程中，this一旦被确定了（this的指向在**函数调用**时确定的），就**不可以再更改**
   
@@ -347,7 +348,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 - bind 是**返回绑定this之后的函数**，apply 、call 则是立即执行
 - bind 是永久改变this指向，call和apply是临时改变一次
 
-### <font color="yellow">14. ajax原理是什么？如何实现？</font>
+### <font color="green">14. ajax原理是什么？如何实现？</font>
 - 定义：AJAX（Asynchronous JavaScript and XML） 是一种在 **不刷新整个页面** 的情况下，与服务器进行数据交换并更新部分页面内容的技术。
 - 原理：通过XmlHttpRequest对象来向服务器发异步请求，从服务器获得数据，然后用JavaScript来操作DOM而更新页面
 - 关键特性：
@@ -367,8 +368,8 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
    1. body: 在 XHR 请求中要发送的数据体，如果不传递数据则为 null
 4. **绑定onreadystatechange事件**:`onreadystatechange` 事件用于监听服务器端的通信状态，主要监听的属性为`XMLHttpRequest.readyState`
    1. AJAX 的核心就是 XHR 状态机：
-0-初始化 → 1-建立连接（已open()） → 2-收到响应头(已send()) → 3-加载响应体(正在接收数据) → 4-完成。
-我们通常在 readyState === 4 且 status 成功时拿到最终数据。
+   0-初始化 → 1-建立连接（已open()） → 2-收到响应头(已send()) → 3-加载响应体(正在接收数据) → 4-完成。
+   我们通常在 readyState === 4 且 status 成功时拿到最终数据。
 
 - 实现一个ajax
 ```javaScript
@@ -440,7 +441,7 @@ ajax({
    1. 微任务：优先级高，事件循环每一轮都会在宏任务前清空微任务队列。
    2. 宏任务：来自宿主环境（浏览器 / Node.js），比如定时器、事件回调。
 
-#### <font color="yellow">async和await</font>
+#### <font color="green">async和await</font>
 - async/await 是 Promise 的语法糖，让异步代码写起来像同步代码。
 - async 函数始终返回一个 Promise；await 会暂停函数执行，把后续代码放入微任务队列，在 Promise resolve/reject 后继续。
 - 相比 .then()，async/await 可读性更高，支持 try...catch 做同步风格的错误处理。
@@ -582,7 +583,7 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
    Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.example.com
    //表示：只允许加载本站和 cdn.example.com 的 JS，不允许执行内联脚本。
    ```
-    
+   
    - 对敏感信息（如 Cookie）设置 HttpOnly(表示 这个 Cookie 不能被 JS 访问)，防止被 JS 读取。
 
 #### CSRF（跨站请求伪造）
@@ -598,7 +599,7 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
     - 取值：Strict：完全禁止跨站请求携带 Cookie。
     - Lax：GET 请求允许，POST/PUT 等禁止（默认）
     - None：允许，但必须同时 Secure（HTTPS）
-提交时要求附加本域才能获取的信息
+    提交时要求附加本域才能获取的信息
   - 在请求中加入 CSRF Token(服务端随机生成一个 不可预测的 Token，放到页面或 Cookie 里。每次请求都必须带上，服务器验证是否匹配。) 并进行校验。
   - 双重Cookie验证
 
@@ -624,7 +625,7 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
 - 防御：
   - 全站使用 HTTPS，避免明文传输。
   - 开启 HSTS（强制使用 HTTPS）：
-`Strict-Transport-Security: max-age=31536000; includeSubDomains #表示 1 年内必须使用 HTTPS，所有子域名也适用。`
+  `Strict-Transport-Security: max-age=31536000; includeSubDomains #表示 1 年内必须使用 HTTPS，所有子域名也适用。`
 
 #### DDoS（分布式拒绝服务攻击）
 - 原理：大量请求耗尽服务器资源。

@@ -5,7 +5,7 @@
 function Human(name) {
     this.name = name;
     this.kingdom = 'animal';
-    this.color = ['yellow', 'white', 'brown', 'black'];
+    this.color = ['green', 'white', 'brown', 'black'];
 }
 
 // 1. 给Human原型添加getName方法
@@ -16,7 +16,7 @@ Human.prototype.getName = function () {
 function Chinese(name, age) {
     Human.call(this, name);
     this.age = age;
-    this.color = 'yellow';
+    this.color = 'green';
 }
 
 // 2. 实现Chinese对Human的继承

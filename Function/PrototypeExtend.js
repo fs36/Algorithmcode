@@ -6,7 +6,7 @@
 function Human(name) {
     this.name = name
     this.kingdom = 'animal'
-    this.color = ['yellow', 'white', 'brown', 'black']
+    this.color = ['green', 'white', 'brown', 'black']
 }
 
 function Chinese(name, age) {
@@ -14,7 +14,7 @@ function Chinese(name, age) {
     Human.call(this, name)
     // 子类实例属性
     this.age = age
-    this.color = 'yellow'
+    this.color = 'green'
 }
 // 1.在"Human"构造函数的原型上添加"getName"函数
 Human.prototype.getName = function () {

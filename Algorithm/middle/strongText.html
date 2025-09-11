@@ -1,5 +1,5 @@
 <!-- 请补全JavaScript代码，实现一个搜索字体高亮的效果。要求如下：
-1. 在input框中输入要搜索的内容，当点击查询按钮时，被搜索的字体样式变为加粗，背景色变为'yellow'
+1. 在input框中输入要搜索的内容，当点击查询按钮时，被搜索的字体样式变为加粗，背景色变为'green'
 2. 重新输入搜索文字，点击查询按钮时，去掉上一次的搜索效果，高亮显示效果只加在本次搜索文字上
 3. 如果搜索不到相关内容，清除之前的效果
 注意：
@@ -35,7 +35,7 @@
             // 创建全局正则表达式
             // g: 全局匹配，i: 忽略大小写
             let regex = new RegExp(searchValue, 'gi'); 
-            text.innerHTML = text.innerHTML.replace(regex, `<b style="background-color: yellow;">${searchValue}</b>`); // 替换并加粗高亮
+            text.innerHTML = text.innerHTML.replace(regex, `<b style="background-color: green;">${searchValue}</b>`); // 替换并加粗高亮
         }
     </script>
 </body>

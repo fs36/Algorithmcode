@@ -7,7 +7,7 @@ class Human {
     constructor(name) {
         this.name = name
         this.kingdom = 'animal'
-        this.color = ['yellow', 'white', 'brown', 'black']
+        this.color = ['green', 'white', 'brown', 'black']
     }
     // 补全代码
     getName() {
