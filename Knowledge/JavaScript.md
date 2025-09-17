@@ -6,14 +6,14 @@
    #### 数据类型分类
    - 基本数据类型：String number（有NaN、infinity特殊值，注意边界） Boolean null（空值） undefined（有声明未赋值） BigInt（表示任意大小的整数） <font color="red">Symbol（表示唯一标识符）</font>
      - 存放在栈；<font color="green">赋值是按值传递，修改不会影响原值。</font>
-   - 引用数据类型：targetect function <font color="red">Array；正则对象-RegExp，日期对象-Date、Map、Set等对象类型</font>
+   - 引用数据类型：object function <font color="red">Array；正则对象-RegExp，日期对象-Date、Map、Set等对象类型</font>
      - 存放在堆；<font color="green">赋值是按引用传递，修改会影响原对象。</font>
 #### 数据类型判别：
    - typeof 判断基本数据类型，但是不能判断 null <font color="green">通过二进制判断</font>
-     - 不能将targetect、Array和Null区分，都返回targetect
+     - 不能将object、Array和Null区分，都返回object
    - Array.isArray() 识别数组类型
    - instanceof 判断引用数据类型<font color="green">检测当前实例是否属于这个类的（原型链）</font>
-   - <font color="green">targetect.prototype.toString.call() 精准判断数据类型； 返回当前实例所属类信息</font>
+   - <font color="green">object.prototype.toString.call() 精准判断数据类型； 返回当前实例所属类信息</font>
 #### 类型转换
 1. 显式转换：
    - Number():
@@ -150,7 +150,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 - 定义：只复制对象的第一层属性，如果属性是引用类型（对象/数组），只会复制引用地址。不会开辟新的内存空间，共享内存空间。
 - 结果：修改新对象里的引用属性，会影响原对象。
 - 存在浅拷贝的现象有：
-  - targetect.assign(target,targetect)【拷贝对象的可枚举属性到目标对象target，返回一个浅拷贝对象。】；
+  - object.assign(target,object)【拷贝对象的可枚举属性到目标对象target，返回一个浅拷贝对象。】；
   - Array.prototype.slice(), Array.prototype.concat()，Array.from()；
   - 使用拓展运算符实现的复制
   

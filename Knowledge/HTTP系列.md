@@ -156,3 +156,21 @@ HTTP协议中发送请求的方法，本质上都是TCP链接，并无差别，�
    ```
 3. Nginx 反向代理(服务端代理请求转发)
 - 在服务器配置反向代理，将前端请求转发到后端 API。
+
+4. 跨域的两种请求（简单请求、预检请求）
+请求方式、请求内容的不同，使出现了两种请求方式，同时浏览器对于这两种请求方式的处理办法也是不同的
+- 简单请求：直接发送请求，服务端进行相应并返回结果
+- 预检请求：
+    1. 浏览器先发送一个 OPTIONS 请求到目标服务器。
+    2. 服务器需要回应相应的 CORS 头部，确认是否允许跨域请求，常见的响应头包括：
+    ```javaScript
+    Access-Control-Allow-Origin
+
+    Access-Control-Allow-Methods
+
+    Access-Control-Allow-Headers
+
+    Access-Control-Max-Age（指定预检请求的缓存时间）
+    ```
+    3. 如果服务器响应正确，浏览器会继续发送真正的请求（如 POST、PUT 等）。否则，浏览器会拒绝请求。
+![alt text](image-11.png)
