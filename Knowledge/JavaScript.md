@@ -6,8 +6,10 @@
    #### 数据类型分类
    - 基本数据类型：String number（有NaN、infinity特殊值，注意边界） Boolean null（空值） undefined（有声明未赋值） BigInt（表示任意大小的整数） <font color="red">Symbol（表示唯一标识符）</font>
      - 存放在栈；<font color="green">赋值是按值传递，修改不会影响原值。</font>
+       - 为什么放在栈里面：这些数据大小确定且比较小
    - 引用数据类型：object function <font color="red">Array；正则对象-RegExp，日期对象-Date、Map、Set等对象类型</font>
      - 存放在堆；<font color="green">赋值是按引用传递，修改会影响原对象。</font>
+      - 为什么放在堆里面：大小不固定，可能会很大
 #### 数据类型判别：
    - typeof 判断基本数据类型，但是不能判断 null <font color="green">通过二进制判断</font>
      - 不能将object、Array和Null区分，都返回object
@@ -165,6 +167,10 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
     - 有局限性，不能拷贝 function、Symbol、undefined
     - 不能正确处理 Date、RegExp、循环引用
   - 手写循环递归
+
+#### 应用场景
+浅拷贝：性能好；只关注第一层数据，不在乎深层数据；数据不会长期使用，即使后面原始值被修改也不影响
+深拷贝：数据隔离；需要复制复杂的嵌套对象；可能出现不可预期的修改风险；需要跨环境/线程传递
   
   ### 6. 说说你对闭包的理解？闭包使用场景 
   - 闭包定义：可以访问外部函数定义域中的变量，即使外部函数已经执行完毕。
@@ -206,11 +212,12 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
   - 节省内存：方法放在原型上，多个实例共享
   - 继承实现
   - 动态扩展实例方法
+
 - 构造函数、原型和实例之间的关系 
   - 通过new 来创建实例对象
   - 构造函数每个对象的__proto__都是指向它的构造函数的原型对象prototype的
     `person1.__proto__ === Person.prototype`
-    - 使用 Object.getPrototypeOf可以获得原型
+    - 使用 **Object.getPrototypeOf** 可以获得原型
   - 每个函数拥有prototype属性，指向原型对象。同时，原型对象有一个自有属性constructor，这个属性指向该函数
 
 - 函数（包括原生构造函数）的原型对象为Function.prototype;
@@ -287,6 +294,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 #### typeof
 - 作用：返回一个字符串，表示操作数的类型。
 - 可识别的类型：number、string、boolean、undefined、object、bigint、symbol、function、
+- 语法：`typeof number`
 - 特点：适合用来判断 **基本数据类型**和变量。
   ```javaScriptif
       (typeof a != 'undefined'){
@@ -307,10 +315,10 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 
 #### 其他判断数据类型的方式
 1. Object.prototype.toString.call()
-- 最准确的类型判断方式，返回 "[object Type]"。
-- 可区分所有内置对象（包括 null、Array、RegExp、Date、Map、Set）。
-- 局限：写法稍繁琐。
-- Object.prototype.toString 不加 call 时，只能检测当前对象，而且可能被重写；加上 call 后可以把任意值作为 this，返回其内部类型标签，是最稳妥的类型判断方法。
+  - 最准确的类型判断方式，返回 "[object Type]"。
+  - 可区分所有内置对象（包括 null、Array、RegExp、Date、Map、Set）。
+  - 局限：写法稍繁琐。
+  - Object.prototype.toString 不加 call 时，只能检测当前对象，而且可能被重写；加上 call 后可以把任意值作为 this，返回其内部类型标签，是最稳妥的类型判断方法。
 
 2. Array.isArray()
   - ES5 新增，专门判断是否为数组。
@@ -344,7 +352,7 @@ JavaScript 中字符串（String）是 不可变的（immutable），**所以所
 #### 区别
 - 三者都可以改变函数的this对象指向
 - 三者第一个参数都是this要指向的对象，如果如果没有这个参数或参数为undefined或null，则默认指向全局window
-- 三者都可以传参，但是**apply是数组，而call是参数列表**，且apply和call是一次性传入参数，而bind可以分为多次传入
+- 三者都可以传参，但是**apply是数组，而call是参数列表**，且apply和call是一次性传入参数，而**bind可以分为多次传入参数**
 - bind 是**返回绑定this之后的函数**，apply 、call 则是立即执行
 - bind 是永久改变this指向，call和apply是临时改变一次
 
@@ -454,19 +462,32 @@ ajax({
    1. await 用于等待一个 Promise 结果。
    2. 会暂停 async 函数的执行，把后续代码放入 微任务队列，等 Promise 完成后再继续。
    3. await 只能在 async 函数中使用
+3. 示例
+```javaScript
+// async 函数
+async function showUserAndOrders() {
+  const user = await getUser();       // 等待 getUser 完成
+  console.log("用户：", user);
+
+  const orders = await getOrders(user.id); // 等待 getOrders 完成
+  console.log("订单：", orders);
+}
+```
 
 ### 16. Javascript本地存储的方式有哪些？区别及应用场景？
 cookie、localStorage、sessionStorage、indexedDB、Cache Storage
 #### cookie
 - 特点
-  - 主要用于 状态管理（会话标识、登录信息）。
-  - 大小限制约 4KB，会随请求头自动携带到服务器。
+  - 主要用于 **状态管理（会话标识、登录信息）**。
+  - 大小限制约 **4KB，会随请求头自动携带到服务器**。
+
 - 常用属性：
-  - Expires 用于设置 Cookie 的过期时间。`Expires=Wed, 21 Oct 2015 07:28:00 GMT`
-  - Max-Age 用于设置在 Cookie 失效之前需要经过的秒数（优先级比Expires高）`Max-Age=604800`
-  - Domain 指定了 Cookie 可以送达的主机名
-  - Path 指定了一个 URL 路径，这个路径必须出现在要请求的资源的路径中才可以发送 Cookie 首部`Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部`
-  - 标记为 Secure 的 Cookie 只应通过被HTTPS协议加密过的请求发送给服务端
+  - `Expires` 用于设置 Cookie 的过期时间。`Expires=Wed, 21 Oct 2015 07:28:00 GMT`
+  - `Max-Age` 用于设置在 Cookie 失效之前需要经过的秒数（优先级比Expires高）`Max-Age=604800`
+  - `Domain` 指定了 Cookie 可以送达的主机名
+  - `Path` 指定了一个 URL 路径，这个路径必须出现在要请求的资源的路径中才可以发送 Cookie 首部`Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部`
+  - 标记为 `Secure` 的 Cookie 只应通过被HTTPS协议加密过的请求发送给服务端
+
 - 关于cookie的使用如下：
   - `document.cookie = '名字=值';`
   - 关于cookie的修改，首先要确定**domain和path属性都是相同**的才可以，其中有一个不同得时候都会创建出一个新的cookie。
@@ -480,10 +501,10 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
 - 特点：
   - 永久存储（除非手动清理或浏览器清空缓存）。
   - 存储的信息在同一域中是共享的，存储内容多的话会消耗内存空间，会导致页面变卡
-  - 大小约 5~10MB，同源策略限制。
+  - 大小约 5~10MB，**同源策略限制**。
 - 缺点：
   - 无法像Cookie一样设置过期时间
-  - 只能存入字符串，无法直接存对象
+  - **只能存入字符串，无法直接存对象**
 - 使用：
   - 设置`localStorage.setItem('username','cfangxu');`
   - 获取`localStorage.getItem('username')`
@@ -496,18 +517,18 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
 - 其他特性与 localStorage 一致（大小、API）。
 
 #### indexedDB
-- 浏览器内置的 非关系型数据库，可存储大量结构化数据。
+- 浏览器内置的 **非关系型数据库，可存储大量结构化数据**。
 - 支持事务、索引、查询，比 localStorage 更强大。
 - 优点：
   - 储存量理论上没有上限
-  - 所有操作都是异步的，相比 LocalStorage 同步操作性能更高，尤其是数据量较大时
-  - 原生支持储存JS的对象
+  - 所有操作都是**异步**的，相比 LocalStorage 同步操作性能更高，尤其是数据量较大时
+  - 原生**支持储存JS的对象**
   - 是个正经的数据库，意味着数据库能干的事它都能干
 - 缺点：
   - 操作非常繁琐,本身有一定门槛
 
 #### Cache Storage (Service Worker)
-- PWA 常用，用于缓存请求和响应。
+- PWA 常用，用于**缓存请求和响应**。
 - 常用于 离线应用 和 前端资源缓存。
 
 #### 区别：
@@ -529,8 +550,8 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
   - localStorage/sessionStorage 也可被脚本读取，适合存储非敏感数据。
 
 - 异步性
-  - localStorage/sessionStorage 是 同步 API，大数据操作会阻塞主线程。
-  - IndexedDB 是 异步 API，不会阻塞。
+  - localStorage/sessionStorage 是 **同步** API，大数据操作会阻塞主线程。
+  - IndexedDB 是 **异步** API，不会阻塞。
 
 #### 实际应用场景
 
@@ -539,15 +560,15 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
    2. 不适合存放大数据。
 
 2. localStorage
-   1. 存储持久化数据：用户偏好设置、主题、上次浏览位置。
+   1. 存储**持久化数据**：用户偏好设置、主题、上次浏览位置。
    2. 适合长期保留的数据。
 
 3. sessionStorage
-   1. 存储临时数据：表单填写进度、页面间传参（在同一标签页内）。
+   1. 存储**临时数据**：表单填写进度、页面间传参（在同一标签页内）。
    2. 页面关闭后清除。
 
 4. IndexedDB
-   1. 大型数据存储：离线应用、缓存数据表、存储二进制文件。
+   1. **大型数据存储**：离线应用、缓存数据表、存储二进制文件。
    2. 典型案例：离线笔记应用、音乐/视频缓存。
 
 5. Cache Storage
