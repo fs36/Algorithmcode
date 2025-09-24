@@ -23,7 +23,6 @@ var findKthLargest = function(nums, k) {
     // 3. 堆顶元素即为第k大元素
     return heap[0];
 };
-
 /**
  * 构建小顶堆
  * @param {number[]} heap - 待构建堆的数组

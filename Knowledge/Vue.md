@@ -360,6 +360,10 @@ export default {
 2. 第三方插件初始化（确保 DOM 已经渲染出来，再初始化插件。）
 3. 动画、滚动（保证元素渲染之后再滚动）
 
+### Vue2和Vue3中nextTick的区别
+### nextTick的原理
+![alt text](image-12.png)
+
 ## 12. 你知道vue中key的原理吗？说说你对它的理解？
 1. key 的作用
 key 的本质是一个 **唯一标识**。
