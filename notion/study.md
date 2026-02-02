@@ -94,3 +94,60 @@ var merge = function(nums1, m, nums2, n) {
     nums1.sort((a,b)=>a-b)
 };
 ```
+
+## 20 有效的括号
+### 笔记
+1. 字符串长度不是偶数，为false
+2. 使用map 定义一个map, map[key] = value
+``` JS
+let myMap2 = new Map([  ['name', 'Alice'],  ['age', 25] ]);
+```
+3. 右括号为key，左括号存入栈
+4. 写函数时记得写全()
+
+``` JS
+/**
+ * @param {string} s
+ * @return {boolean}
+ */
+var isValid = function(s) {
+    if(s.length%2 !== 0) return false
+    const stack = []
+    const map = {')':'(',']':'[','}':'{'}
+    for(const char of s){
+        if(char in map){
+            if(!stack.length || stack.pop() !== map[char]){
+                return false
+            } 
+        } else {
+                stack.push(char)
+            }
+    }
+    return stack.length === 0
+};
+```
+
+## 415 字符串相加
+### 笔记
+1. reverse 不要打错
+2. reverse把数组翻转，join 会把数组里的每一项都拼成一个字符串，中间用你指定的分隔符连接
+``` JS
+/**
+ * @param {string} num1
+ * @param {string} num2
+ * @return {string}
+ */
+var addStrings = function(num1, num2) {
+    let i= num1.length-1,j=num2.length-1,result=[],carry=0
+    while(i>=0||j>=0||carry > 0){
+        const digit1 = num1[i]>=0 ? parseInt(num1[i]) : 0
+        const digit2 = num2[j]>=0 ? parseInt(num2[j]) : 0
+        const sum = digit1 + digit2 + carry
+        result.push(sum%10)
+        carry = Math.floor(sum/10)
+        i--
+        j--
+    }
+    return result.reverse().join('')
+};
+```
