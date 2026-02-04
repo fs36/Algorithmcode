@@ -7,9 +7,11 @@
    - 基本数据类型：String number（有NaN、infinity特殊值，注意边界） Boolean null（空值） undefined（有声明未赋值） BigInt（表示任意大小的整数） <font color="red">Symbol（表示唯一标识符）</font>
      - 存放在栈；<font color="green">赋值是按值传递，修改不会影响原值。</font>
        - 为什么放在栈里面：这些数据大小确定且比较小
+     - 比较：值是否相等
    - 引用数据类型：object function <font color="red">Array；正则对象-RegExp，日期对象-Date、Map、Set等对象类型</font>
      - 存放在堆；<font color="green">赋值是按引用传递，修改会影响原对象。</font>
       - 为什么放在堆里面：大小不固定，可能会很大
+     - 比较：内存地址是否相等
 #### 数据类型判别：
    - typeof 判断基本数据类型，但是不能判断 null <font color="green">通过二进制判断</font>
      - 不能将object、Array和Null区分，都返回object

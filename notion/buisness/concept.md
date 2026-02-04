@@ -90,3 +90,116 @@
 
 理解了这些名词，你就掌握了构建 AI 应用的底层逻辑。Agent 的强大不在于模型本身知道多少知识，而在于它能像人类一样，利用工具和搜索去解决边界之外的问题。
 
+## MCP 的工作流程及其相关概念
+### MCP Server
+- 定义：提供工具和资源的服务程序
+- 职责：
+    - ✅ 定义和注册工具（tools）
+    - ✅ 定义和提供资源（resources）
+    - ✅ 处理来自 Client 的请求
+    - ✅ 返回工具执行结果
+- 通信方式：
+    - Stdio - 标准输入输出（最常用，本地通信）
+    - SSE - Server Sent Events（HTTP 单向推送）
+    - WebSocket - 双向长连接
+
+### MCP Client
+- 定义：连接并调用 MCP Server 的程序
+- 职责：
+    - 发送请求给 Server
+    - 接受 Server 的响应
+    - 为 Host 提供工具接口
+
+### MCP Host
+- 定义：集成 MCP Client 的应用程序，最终用户使用的界面
+- 职责：
+    - ✅ 在宿主应用中展示 MCP Server 的工具
+    - ✅ 创建 MCP Client 实例
+    - ✅ 管理多个 Server 的连接
+    - ✅ 提供 UI 交互界面给用户
+    - ✅ 处理 Client 和 Server 的通信
+
+### 通信流程
+
+``` plain text
+步骤 1: 启动阶段
+═══════════════════════════════════════════════════════════
+┌─────────────────┐
+│  Cursor IDE     │
+│  (MCP Host)     │
+└────────┬────────┘
+         │ 读取配置: mcp-coding 的启动命令
+         ▼
+┌─────────────────────────────────────────────────┐
+│  Cursor 内的 MCP Client #1                     │
+│  (client/mcp-coding)                           │
+└────────┬────────────────────────────────────────┘
+         │ 执行命令: node /path/to/mcp-coding/es/index.js
+         │
+         ▼
+┌─────────────────────────────────────────────────┐
+│  你的 MCP Server                               │
+│  (@finfe/mcp-coding)                           │
+│                                                 │
+│  - 初始化工具                                   │
+│  - 注册 get_component_detail 等                │
+│  - 连接 StdioServerTransport                   │
+└─────────────────────────────────────────────────┘
+
+
+步骤 2: Client 获取工具信息
+═══════════════════════════════════════════════════════════
+Cursor MCP Client                Server
+       │                          │
+       ├─────────────────────────>│
+       │  tools/list              │
+       │  获取可用工具列表         │
+       │                          │
+       │<─────────────────────────┤
+       │                          │
+       │ 返回工具列表              │
+       │ [                         │
+       │   {name: 'get_component_detail', ...},
+       │   {name: 'list_components', ...},
+       │   ...                     │
+       │ ]                         │
+       │                          │
+
+
+步骤 3: 用户在 Cursor 中调用工具
+═══════════════════════════════════════════════════════════
+用户输入: "@mcp_tool_mcp-coding_get_component_detail components:['Button']"
+   │
+   ▼
+Cursor IDE 识别这是 MCP 工具调用
+   │
+   ▼
+Cursor MCP Client                Server
+       │                          │
+       ├─────────────────────────>│
+       │  tools/call              │
+       │  {                        │
+       │    "name": "get_component_detail",
+       │    "arguments": {          │
+       │      "components": ["Button"]
+       │    }                      │
+       │  }                        │
+       │                          │
+       │  (等待处理...)            │
+       │                          │ 执行 exec() 中的处理函数
+       │                          │ 读取知识库文件
+       │                          │ 返回格式化结果
+       │                          │
+       │<─────────────────────────┤
+       │                          │
+       │ 返回结果                  │
+       │ {                         │
+       │   "content": [{           │
+       │     "type": "text",       │
+       │     "text": "# Button\n..." │
+       │   }]                      │
+       │ }                         │
+       │                          │
+   ▼
+Cursor IDE 展示结果给用户
+```

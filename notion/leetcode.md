@@ -173,3 +173,44 @@ var twoSum = function(nums, target) {
     return [];
 };
 ```
+
+## 46 全排列
+### 笔记
+
+**回溯算法——递归**
+1. 递归出口（防止死循环），明确什么时候去返回结果
+2. 递归公式：把问题拆解成小问题。
+3. 状态重置与回溯：在下一层递归前做的修改，在从递归返回之后必须撤销
+
+全排列问题的本质是决策树的**深度优先遍历**
+- 决策过程：当你站在起点时，你有 $n$ 种选择（1, 2, 3...）。选了 1 之后，接下来的位置只能从剩余的数字里选。这形成了一个树状结构。
+- 空间探索：回溯法允许我们深入到树的最底层（找到一个结果），然后原路返回，撤销上一步的选择，再去尝试另一条分支。
+- 结论：只要题目要求“找出所有可能的结果”，且每一步都依赖之前的选择，回溯法通常是唯一解。
+
+``` TS
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var permute = function (nums) {
+    const res = [];
+    const path = [];
+    const used = new Array(nums.length).fill(false);
+    function backtrack() {
+        if(path.length === nums.length) {
+            res.push([...path]);
+            return;
+        }
+        for(let i = 0; i < nums.length; i++) {
+            if(used[i]) continue;
+            path.push(nums[i]);
+            used[i] = true;
+            backtrack();
+            path.pop();
+            used[i] = false;
+        }
+    }
+    backtrack();
+    return res;
+};
+```
