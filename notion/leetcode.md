@@ -151,3 +151,25 @@ var addStrings = function(num1, num2) {
     return result.reverse().join('')
 };
 ```
+
+## 2 两数之和
+### 笔记
+1. 使用map，确定谁是key，谁是value
+
+``` TS
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+var twoSum = function(nums, target) {
+    const map = new Map();
+    for(let i =0;i<nums.length;i++){
+        if(map.has(target - nums[i])){
+            return [map.get(target - nums[i]), i];
+        }
+        map.set(nums[i], i);
+    }
+    return [];
+};
+```
