@@ -257,3 +257,40 @@ var reverseList = function(head) {
     return newHead
 };
 ```  
+
+## 15 三数之和
+### 笔记
+1. 排序 + 边界修剪：length<3 返回null；排序后第一位为0 直接终止返回结果
+2. 固定一个数 i，双指针遍历另外两个 j k，sum = 0，sum < 0 j右移，sum > 0,k 左移
+3. 去重：i j k的重复
+4. 终止遍历 i = len-3、j < k
+``` TS
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var threeSum = function(nums) {
+    let result = []
+    nums.sort((a,b)=>a-b)
+    if(nums.length<3 || nums[0]>0) return result
+    for(let i=0;i<nums.length-2;i++){
+        if(i>0 && nums[i]===nums[i-1]) continue
+        let j = i + 1,k = nums.length - 1
+        while(j<k){
+            let sum = nums[j]+nums[i]+nums[k]
+            if(sum === 0){
+                result.push([nums[i],nums[j],nums[k]])
+                while( j< k && nums[j] === nums[j+1]) j++
+                while(j< k && nums[k] === nums[k-1]) k--
+                j++
+                k--
+            } else if(sum>0){
+                k--
+            } else {
+                j++
+            }
+        }
+    }
+    return result
+};
+```

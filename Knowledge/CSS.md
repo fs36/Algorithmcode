@@ -53,12 +53,15 @@
     - 通用兄弟选择器：div ~ p {}
 
 3. 伪类选择器
-    - 动态伪类：:hover、:active、:focus
-    - 结构伪类：:first-child、 :last-child、:nth-child(n)、:not()
+    用来选择处于特定状态元素的选择器，描述元素的状态或位置，可以同时使用多个
+    - 动态伪类（用户交互）：:hover、:active、:focus
+    - 结构伪类（元素位置）：:first-child、 :last-child、:nth-child(n)
+    - 状态伪类：:checked、:disabled
+    - 否定伪类：:not()
 
 4. 伪元素选择器
-    - ::before、::after、::first-line、 
-    - ::first-letter
+    创建和样式化元素的特定部分或插入内容。最多两个
+    - ::before（元素之前插入）、::after（元素之后插入）、::first-line（首行）、 ::first-letter（首字母）、::selection（选中文本）、::placeholder（占位符）
 
 5. 组合符
     - 并集选择器：h1, h2 {}
@@ -76,8 +79,8 @@
 
 -  规则覆盖
     - 权重高的覆盖低的。
-    - 权重相同时，后写的覆盖前写的（就近- 原则）。
-    - !important 优先级最高，但一般不- 推荐频繁使用。  
+    - 权重相同时，后写的覆盖前写的（就近原则）。
+    - !important 优先级最高，但一般不推荐频繁使用。  
 
 #### 哪些属性可以继承？
 1. 可继承（主要是 文字相关属性）
