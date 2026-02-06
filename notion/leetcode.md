@@ -214,3 +214,46 @@ var permute = function (nums) {
     return res;
 };
 ```
+
+## 206 反转链表
+### 笔记
+1. 使用双指针，prev current，要保留next
+2. 翻转next，移动指针
+``` TS
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+// 迭代
+var reverseList = function(head) {
+    let prev = null
+    let current = head
+    while(current!==null){
+        const next = current.next
+        current.next = prev
+        prev = current
+        current = next
+    }
+    return prev
+};
+
+// 递归
+var reverseList = function(head) {
+    // 终止条件
+    if(head === null || head.next === null) return head
+
+    const newHead = reverseList(head.next)
+    // 反转链表的主要操作
+    head.next.next = head
+    head.next = null
+    // 返回新的头节点
+    return newHead
+};
+```  
