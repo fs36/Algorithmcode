@@ -294,3 +294,63 @@ var threeSum = function(nums) {
     return result
 };
 ```
+
+## 102 二叉树的层序遍历（BFS）
+### 笔记
+1. 用队列存每一层节点
+2. 每次先记录当前列表的长度 = 本层节点数
+3. 遍历这一层所有节点
+``` TS
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {number[][]}
+ */
+var levelOrder = function(root) {
+    if(!root) return []
+    const res = []
+    const queue = [root]
+    while(queue.length >0){
+        const levelSize = queue.length // 本层有多少个节点
+        const currentLevel = [] // 存本层节点的值
+        for(let i=0;i<levelSize;i++){
+            const node = queue.shift() 
+            currentLevel.push(node.val)
+            // 下一层
+            if(node.left) queue.push(node.left)
+            if(node.right) queue.push(node.right)
+        }
+        res.push(currentLevel) // 一层的结果
+    }
+    return res
+};
+```
+
+## 53 最大子数组和
+### 笔记
+使用动态规划（用过去最优——>推现在最优——>不重复计算）
+1. 核心思路：每一个数都有两个选择：加入前面的子数组，或者自己重新开始一段
+``` TS
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSubArray = function(nums) {
+    if(!nums|| nums.length === 0) return 0
+    let currentMax = nums[0],maxSum = nums[0]
+    for(let i=1;i<nums.length;i++){
+        // 要么延续以前，要么重新开始
+        currentMax = Math.max(nums[i],currentMax+nums[i])
+        // 更新全局最大
+        maxSum = Math.max(currentMax,maxSum)
+    }
+    return maxSum
+};
+```
