@@ -426,3 +426,38 @@ var hasPathSum = function(root, targetSum) {
 };
 ```
 
+# 其他
+## 嵌套对象扁平化
+// 输入：const obj = {a:{b:{a:1},d:2},e:2}
+// 输出：{a.b.c:1,a.d:2;e:2}
+### 笔记
+递归
+终止条件：不是对象停止递，是基础数据类型，存值到res
+递：是对象，不为null，传递prefix和obj
+归：不需要，直接返回res
+``` TS
+/**
+ * @param {object} object
+ * @return {object} res
+ */
+function flatten(obj){
+    const res = []
+    function dfs(obj,prefix){
+        // 遍历当前层所有key
+        for(let key in obj){
+            const value = obj[key]
+            // 拼接新key，有前缀就加.,没有就直接key
+            const newKey = prefix ? `${prefix}.${key}` : key
+            // 如果是对象 && 不是null，继续递归
+            if(typeof value === 'object' && value !== null){
+                dfs(value,newkey)
+            } else{
+                // 基本数据，直接赋值
+                res[newKey] = value
+            }
+        }
+    }
+    dfs(obj,'') // 从根开始，前缀为空
+    return res
+}
+```
