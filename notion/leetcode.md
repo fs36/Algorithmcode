@@ -354,3 +354,75 @@ var maxSubArray = function(nums) {
     return maxSum
 };
 ```
+
+## 121 买卖股票的最佳时机
+### 笔记
+min 价格最低，max 当前价格减去最低价格的最大利润
+``` TS
+var maxProfit = function(prices) {
+    let min = prices[0]
+    let max = 0
+    for(let i=1;i<prices.length;i++){
+        min = Math.min(prices[i],min)
+        max = Math.max(prices[i]-min,max)
+    }
+    return max
+};
+```
+
+## 141 环形链表
+### 笔记 
+快慢指针(快指针比慢指针快一步)，有环必定相遇，无环快指针走到null
+``` TS
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+
+/**
+ * @param {ListNode} head
+ * @return {boolean}
+ */
+var hasCycle = function(head) {
+    if(!head || !head.next) return false
+    let slow = head, fast = head
+    while(fast && fast.next){
+        slow = slow.next
+        fast = fast.next.next
+        if(slow === fast) return true
+    }
+    return false
+};
+```
+
+## 112 路径之和
+### 笔记
+递归
+终止条件：1. 空节点；2. 叶子节点
+递：向左走，向右走
+归：有一边的值为目标sum
+**走一个节点，减去一个节点的值**
+``` TS
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} targetSum
+ * @return {boolean}
+ */
+var hasPathSum = function(root, targetSum) {
+    if (!root) return false
+    if(!root.left && !root.right) return root.val === targetSum
+    return hasPathSum(root.left,targetSum-root.val) || hasPathSum(root.right,targetSum-root.val)
+};
+```
+
