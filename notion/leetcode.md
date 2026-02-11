@@ -426,7 +426,7 @@ var hasPathSum = function(root, targetSum) {
 };
 ```
 
-# 其他
+# 手撕
 ## 嵌套对象扁平化
 // 输入：const obj = {a:{b:{a:1},d:2},e:2}
 // 输出：{a.b.c:1,a.d:2;e:2}
