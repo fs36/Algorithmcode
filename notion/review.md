@@ -409,7 +409,7 @@ defer
 2. 适用于依赖 DOM 元素的脚本，但不依赖其他脚本。
 
 
-# 准备
+## 准备
 1. websocket和http有啥区别？
 | 特性         | HTTP               | WebSocket           |
 | ---------- | ------------------ | ------------------- |
@@ -448,3 +448,164 @@ Server --> Client: ACK (seq = y, ack = x + 1) —— 服务端已经收到客户
 Server --> Client: FIN (seq = y) —— 服务端也想断开连接了，服务端处于 LAST_ACK 的状态
 Client --> Server: ACK (seq = x + 1, ack = y + 1) —— 此时客户端处于 TIME_WAIT状态。需要过一阵子以确保服务端收到自己的 ACK 报文之后才会进入 CLOSED 状态，服务端收到 ACK 报文之后，就处于关闭连接了，处于 CLOSED 状态
 ```
+
+## 钉钉 AI财务
+1. 笔试 - 用 React 写 todoList ，可以新增和边输入边搜索
+``` JS
+import React, { useState } from 'react';
+
+function TodoApp() {
+  // 用来存储 Todo 列表的状态
+  const [todos, setTodos] = useState([]);
+  
+  // 用来存储当前输入的 todo 标题和描述
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  // 用来存储搜索关键字
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // 添加 Todo
+  const addTodo = () => {
+    const newTodo = {
+      id: Date.now(), // 使用当前时间戳作为 id
+      title: title,
+      description: description,
+    };
+    setTodos([...todos, newTodo]); // 更新 Todo 列表
+    setTitle(''); // 清空输入框
+    setDescription(''); // 清空输入框
+  };
+
+  // 过滤 Todo List 根据搜索关键字
+  const filteredTodos = todos.filter(todo => 
+    todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    todo.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div>
+      <h1>Todo List</h1>
+
+      {/* 搜索框 */}
+      <input 
+        type="text" 
+        placeholder="Search todos..." 
+        value={searchQuery} 
+        onChange={(e) => setSearchQuery(e.target.value)} 
+      />
+
+      {/* 添加 Todo 表单 */}
+      <div>
+        <input
+          type="text"
+          placeholder="Todo Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Todo Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <button onClick={addTodo}>Add Todo</button>
+      </div>
+
+      {/* Todo List 展示 */}
+      <ul>
+        {filteredTodos.map(todo => (
+          <li key={todo.id}>
+            <h3>{todo.title}</h3>
+            <p>{todo.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default TodoApp;
+
+```
+
+2. 如果把这个搜索换成传参数给接口需要注意些什么？做什么处理
+- 异步操作：通过 API 请求数据是一个异步操作，需要使用 async/await 或者 .then() 来处理异步调用。
+- 防止重复请求：防抖
+- 显示加载状态：通过 setLoading 来表示加载状态，显示加载中的字样，提供反馈。
+- 错误处理：try/catch throw
+``` JS
+ // 发起搜索请求
+  const searchTodos = async (query) => {
+    setLoading(true);  // 开始加载
+    setError('');  // 清除上次错误信息
+
+    try {
+      // 假设接口 URL 是 `https://api.example.com/todos`
+      const response = await fetch(`https://api.example.com/todos?search=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        throw new Error('请求失败');
+      }
+
+      const data = await response.json();
+      setTodos(data);  // 设置返回的 todos 数据
+    } catch (err) {
+      setError('加载数据失败，请稍后再试');
+    } finally {
+      setLoading(false);  // 完成加载
+    }
+  };
+
+  // 当 searchQuery 改变时，发起新的搜索请求
+  useEffect(() => {
+    if (searchQuery) {
+      searchTodos(searchQuery);  // 发起 API 请求
+    }
+  }, [searchQuery]);  // 每次 searchQuery 改变时重新发起请求
+```
+
+3. 写一个防抖函数比较关键的点？怎么重置定时器？和节流有什么不同？防抖和节流实际的应用场景？
+关键点：
+- 延迟执行：setTimeout
+- 上下文和剩余函数：this、args
+- 重置定时器：每次事件触发时清除上一次的定时器（`clearTimeout(timer)`），然后使用 `setTimeout` 重新设置一个新的定时器
+``` TS
+// 设置新的定时器
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+```
+适用场景
+  - 输入框搜索：用户输入时，只有在停止输入一段时间后才会发起请求，从而避免每输入一个字符就发起一次请求。
+  - 按钮点击：限制按钮的重复点击。
+  - 表单验证：用户停止输入时触发验证，而不是每次输入都验证。
+
+节流
+关键点：
+- 固定间隔执行：
+- 不会重置定时器：
+适用场景：
+  - 滚动监听：例如监听滚动事件时，避免频繁触发，优化性能。
+  - 窗口大小变化：在窗口调整大小时，避免多次触发导致布局重排。
+  - 动画触发：每隔一段时间触发一次动画，而不是每次事件触发时都执行。
+
+4. vue 和 React 里面比较关键的一些核心的概念或者设计思路？
+5. 了解虚拟 DOM 吗？
+6. 知道 diff 比较算法吗？比较步骤有哪些
+7. JSX 是如何转换成最终可以执行的代码的？
+8. fiber 有一个很重要的功能就是JSX的转换，处理这个还提供了哪些功能？
+9. React 里面有哪些默认的 Hook ？平时使用哪些？
+10. uesEffect 的依赖数组和对应的执行时机是怎么样的？（[]时，执行时机是怎么样的）
+11. 调用或者封装 hooks，有什么特别需要注意的地方吗？（hooks的使用规则）
+12. 能简单讲一下 JS 的事件循环吗？
+13. web 开发的时候，有哪些设置本地缓存的方式？
+14. 如何对 agent 进行校验和观测？
+15. 什么是 mcp ？什么是 skills ？
+16. mcp 和 skills 的区别是什么？
+17. 写过 skills 吗？如何去写 skills？
+18. 用过 AI coding 吗？在日常开发的占比是多少？1个月使用多少的 token ？
+19. 常用的模型是什么？
+20. 对于一个需求，进行 AI coding，开发的流程是什么样的？
+21. AI rules 是自己写的吗？怎么写的？
+
