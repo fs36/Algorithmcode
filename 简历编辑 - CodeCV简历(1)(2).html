@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width initial-scale=1'>
+    <title>简历编辑 - CodeCV简历</title>
+    <style>
+        html,
+        body {
+            font-size: 14px;
+            background-color: #ffffff;
+            color: #333333;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #write {
+            width: 210mm;
+            /* A4 width */
+            height: 297mm;
+            /* A4 height */
+            margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        h1,
+        h2,
+        h4,
+        h5,
+        h6 {
+            margin: 0 0 1rem 0;
+            font-weight: bold;
+        }
+
+        h3 {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        h4 {
+            color: #468cd4;
+            border-bottom: 2px solid #468cd4;
+            padding-bottom: 5px;
+        }
+
+        p,
+        ul,
+        li {
+            margin: 0.4em 0;
+            line-height: 1.4;
+            /* 调整行间距 */
+            text-align: justify;
+            /* 两端对齐 */
+        }
+
+        a {
+            color: #4183C4;
+            text-decoration: none;
+        }
+
+        .horizontal {
+            display: flex;
+            justify-content: space-between;
+            /* 两端对齐 */
+        }
+
+        .horizontal p {
+            margin: 0;
+            flex: 1;
+            /* 让每个p标签平均分配宽度 */
+            min-width: 0;
+            /* 允许文本换行 */
+        }
+
+        /* 新增：时间列样式 */
+        .time-column {
+            flex: 0 0 100px;
+            /* 固定宽度，不伸缩 */
+            text-align: left;
+        }
+
+        /* 新增：名称列样式 */
+        .name-column {
+            flex: 2;
+            /* 名称列占据更多空间 */
+            text-align: left;
+            padding: 0 10px;
+            /* 增加左右内边距 */
+        }
+
+        /* 新增：职位列样式 */
+        .position-column {
+            flex: 1.5;
+            /* 职位列中等宽度 */
+            text-align: right;
+        }
+
+        .centered {
+            text-align: center;
+            /* 居中 */
+        }
+
+        /* 新增样式优化 */
+        strong,
+        b {
+            font-weight: bold;
+            color: #2c3e50;
+            /* 给加粗文字更深的颜色以突出重点 */
+        }
+
+        /* 给列表项增加视觉层次 */
+        li {
+            margin-left: 15px;
+            /* 增加缩进 */
+            padding-left: 5px;
+            /* 增加左侧内边距 */
+        }
+
+        /* 确保重要数据突出显示 */
+        .horizontal strong {
+            color: #468cd4;
+            /* 给时间、公司名称等更醒目的颜色 */
+        }
+
+        /* 项目职责列表样式 */
+        ul {
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+        }
+
+        /* 为每个经历部分增加间距 */
+        h4+.horizontal,
+        .horizontal+li,
+        .horizontal+ul {
+            margin-top: 0.5em;
+        }
+
+        /* 新增：实习经历和项目经验条目之间的间距 */
+        .experience-item {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='write'>
+        <h3 id='xxx---前端开发工程师' class="centered">张馨文 - <strong>前端开发工程师</strong></h3>
+        <p class="centered">联系方式：<strong>13882371687</strong> ｜ 邮箱：<strong>1935661782@qq.com</strong> |
+            政治面貌：<strong>中共党员</strong></p>
+        <h4 id='教育背景'>教育背景</h4>
+        <div class="horizontal">
+            <p class="time-column"><strong>2022.09 - 2026.06</strong></p>
+            <p class="name-column"><strong>成都信息工程大学(一本)</strong></p>
+            <p class="position-column"><strong>区块链工程专业（计算机大类） - 学士</strong></p>
+        </div>
+        <p><strong>排名：</strong>专业前10%（国家励志奖学金）</p>
+        <p><strong>相关课程：</strong>数据结构与算法、计算机网络、计算机组成原理、操作系统Web应用开发（java）</p>
+        <h4 id='实习经历'>实习经历</h4>
+        <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2025.11 - 至今</strong></p>
+                <p class="name-column"><strong>成都三快科技有限公司（美团）</strong></p>
+                <p class="position-column"><strong>财务科技——前端开发实习生</strong></p>
+            </div>
+            <li><b>独立负责业务需求：</b>主导财务相关系统模块的需求评审、方案设计、开发与全流程跟进，确保项目高质量交付。</li>
+            <li><b>技术架构与开发：</b>使用 <strong>React</strong> 结合内部组件库进行高效开发，通过自定义 Hook 封装复杂业务逻辑，提升代码复用性。</li>
+            <li><b>Agent 搭建：</b>基于 AI 应用工厂搭建部门级别的问答<strong> Agent</strong>，连接知识库和 MCP 服务，了解 RAG、skills 相关 AI 概念。</li>
+        </div>
+        
+        <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2025.09 - 2025.10</strong></p>
+                <p class="name-column"><strong>成都唱吧开飞科技有限公司</strong></p>
+                <p class="position-column"><strong>前端开发实习生</strong></p>
+            </div>
+            <li><b>业务开发：</b>独立负责 <strong>5个 Vue2/Vue3 H5 营销活动页面</strong>的开发与维护，累计服务 <strong>50,000+用户</strong>，保障活动稳定上线。</li>
+            <li><b>工具链建设：</b>参与内部项目脚手架开发，负责开发 <strong>Vite 插件</strong>以实现特定构建优化，助力团队提升开发效率。</li>
+        </div>
+        
+        <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2025.03 - 2025.06</strong></p>
+                <p class="name-column"><strong>成都量子矩阵科技有限公司</strong></p>
+                <p class="position-column"><strong>前端开发实习生</strong></p>
+            </div>
+            <li><b>核心模块开发：</b>基于 <strong>Vue3 + Pinia</strong> 独立开发数据平台 <strong>30+ 页面</strong>，封装地图交互、图表可视化、文件预览等 <strong>20+
+                    高复用性业务组件</strong>，将组件复用率提升 <strong>70%</strong>，系统易用性与开发效率提升约 <strong>20%</strong>。</li>
+            <li><b>重构：</b>重构算法接入流程，设计<strong>通用配置化组件</strong>，减少<strong>60% 重复代码</strong>，支持后续同类算法一键接入，效率提升
+                <strong>75%</strong>。</li>
+            <li><b>提效：</b>主动推动团队流程规范化，设计任务协作表格，提升团队沟通效率约 <strong>40%</strong>。</li>
+        </div>
+        
+        <h4 id='项目经验'>项目经验</h4>
+        
+        <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2026.01 - 2026.02</strong></p>
+                <p class="name-column"><strong>组件库优化与文档站升级</strong></p>
+                <p class="position-column"><strong>前端开发</strong></p>
+            </div>
+            <p><strong>项目描述：</strong>为提升部门内部组件库的国际化支持、文档维护效率和开发者体验，主导并完成了组件库的多项优化。</p>
+            <p><strong>技术栈：</strong>React + TypeScript + dumi + node.js</p>
+            <p><strong>主要职责：</strong></p>
+            <ul>
+                <li><strong>AI 问答集成：</strong>基于公司基础设施搭建 <strong>AI 问答 Agent</strong>，集成到组件库文档站，提供实时组件库相关问题解答，提升文档站用户互动体验。</li>
+                <li><strong>MCP 封装：</strong>基于 AI rules 搭建组件库的<strong>语料库和 MCP </strong>系统，为开发者提供便捷的组件使用文档和编程参考，提升开发效率和代码质量。</li>
+                <li><strong>国际化支持：</strong>为组件库新增国际化配置，通过<strong> Conetxt 和 Provider </strong>机制搭建 ConfigProvider 实现全局语言配置，支持多语言环境切换，提升跨国使用体验。</li>
+                <li><strong>文档自动化：</strong>在组件库文档站新增组件总览部分，建立<strong>自动化流程</strong>将新组件自动展示在总览中，免去手动更新文档的工作，提高文档维护效率。</li>
+            </ul>
+        </div>
+        
+        <!-- <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2025.11 - 2025.12</strong></p>
+                <p class="name-column"><strong>Monorepo 架构迁移与前端工程化升级</strong></p>
+                <p class="position-column"><strong>前端开发</strong></p>
+            </div>
+            <p><strong>项目描述：</strong>为解决前端项目碎片化、工具链落后导致的研发与运维成本激增问题，主导完成从多仓库向 <strong>Monorepo 架构</strong>
+                的平滑迁移及前端工程化体系全面升级。通过引入现代化工具链与标准化流程，解决依赖管理、代码复用、多地部署等核心痛点。</p>
+            <p><strong>核心职责与成果：</strong></p>
+            <ul>
+                <li><strong>主导 Monorepo 架构设计与落地：</strong>为 <strong>20+子应用</strong> 设计基于 <strong>PNPM</strong> 的 <strong>Monorepo
+                        方案</strong>，通过收敛仓库、统一依赖管理，降低了依赖包的重复率，解决依赖碎片化，将主门户与子应用分批、平滑地接入新架构，保障业务零中断。</li>
+                <li><strong>前端工具链现代化升级与工程提效：</strong>将老旧脚手架（Node.js 12/14）升级至新版脚手架，统一 <strong>Node.js 18+</strong> 环境并支持
+                    <strong>HMR</strong>，显著提升开发热更新效率；将包管理器统一迁移至 <strong>pnpm</strong>，优化依赖安装速度与磁盘占用。</li>
+                <li><strong>构建发布与微前端集成优化：</strong>在 <strong>Monorepo 下实现了子应用与共享模块的高效依赖与独立构建</strong>，统一发布流程与 <strong>CI/CD
+                        模板</strong>，降低国际化多地部署的配置成本。</li>
+                <li><strong>研发流程规范与质量保障：</strong>设计了完善的灰度发布与回滚方案，通过自动化测试与核心指标监控，保障了整体迁移过程平稳，最终实现全量上线零故障。</li>
+            </ul>
+        </div>
+         -->
+        <div class="experience-item">
+            <div class="horizontal">
+                <p class="time-column"><strong>2025.09 - 2025.10</strong></p>
+                <p class="name-column"><strong>changba-cli 脚手架</strong></p>
+                <p class="position-column"><strong>前端开发</strong></p>
+            </div>
+            <p><strong>背景：</strong>为解决团队多Vue版本项目并存、代码质量不一、构建流程低效等问题，主导开发统一的企业级脚手架。</p>
+            <p><strong>技术栈：</strong>Node.js + TypeScript + Monorepo + Vite + ESLint</p>
+            <p><strong>主要职责：</strong></p>
+            <ul>
+                <li><strong>多版本支持：</strong>设计并实现基于 <strong>Vite</strong> 的脚手架内核，通过动态版本检测、条件配置加载、差异化Vite插件应用，使对不同 Vue 版本（Vue
+                    2/3）的支持成为可切换的配置方案，实现一套命令对两种 Vue 项目的"无缝"开发与构建。</li>
+                <li><strong>静态资源自动检测：</strong>开发静态资源检测插件体系。通过 Vite 插件机制，在构建阶段自动检测并报告未使用的图片/CSS，减少 <strong>80%</strong>
+                    人工排查成本，累计清理数GB无用资产。</li>
+                <li><strong>代码质量保障：</strong>深度集成 <strong>ESLint、Prettier、Husky</strong>，通过脚手架固化统一配置，在 Git
+                    提交/推送阶段强制校验，使团队代码规范统一度达 <strong>95%</strong>，显著降低 CR 成本。</li>
+                <li><strong>构建打包深度优化：</strong>集成 Vite 生态的优化插件，包括图片压缩、资源预加载、大文件监控等功能，通过自动化图片压缩和资源优化，将应用产物体积减少
+                    <strong>20%</strong>，直接提升应用加载速度与运行时性能。</li>
+                <li><strong>资源预加载：</strong>自动为包含特定标识符的资源文件生成 &lt;link rel="preload"&gt; 标签，使关键路径资源加载时机提前，将页面关键交互时间平均优化了
+                    <strong>15%-25%</strong>，有效提升了用户感知性能与体验流畅度。</li>
+            </ul>
+        </div>
+        
+        <h4 id='专业技能'>专业技能</h4>
+        <li>熟悉 <strong>HTML5 语义化标签</strong>，熟练运用 <strong>CSS3 核心特性（定位、Flex 布局）</strong></li>
+        <li>精通 <strong>JavaScript ES5/ES6 语法</strong>，深入理解闭包等核心概念，熟练掌握异步编程（Ajax、Promise、async/await）</li>
+        <li>熟练使用 <strong>Vue2/Vue3 生态（Vuex/Pinia等）</strong>，熟练运用 Element UI/Element Plus 组件库</li>
+        <li>掌握 <strong> React 及其 Hooks 机制</strong>，能够结合组件库进行业务开发</li>
+        <li>掌握 <strong>HTTP 协议</strong> 以及常见状态码，熟悉多种跨域方式，如 JSONP、CORS</li>
+        <li>善于使用 AI 工具提升开发效率和文档产出</li>
+</body>
+
+</html>
