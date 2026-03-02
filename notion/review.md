@@ -594,7 +594,7 @@ export default TodoApp;
 5. 了解虚拟 DOM 吗？
 6. 知道 diff 比较算法吗？比较步骤有哪些
 7. JSX 是如何转换成最终可以执行的代码的？
-8. fiber 有一个很重要的功能就是JSX的转换，处理这个还提供了哪些功能？
+8. fiber 有一个很重要的功能就是JSX的转换，除了这个还提供了哪些功能？——————Fiber 的主要改进是使 React 的渲染过程更高效、更灵活，通过增量渲染、优先级控制和异步渲染等机制，
 9. React 里面有哪些默认的 Hook ？平时使用哪些？
 10. uesEffect 的依赖数组和对应的执行时机是怎么样的？（[]时，执行时机是怎么样的）
 11. 调用或者封装 hooks，有什么特别需要注意的地方吗？（hooks的使用规则）
@@ -609,3 +609,80 @@ export default TodoApp;
 20. 对于一个需求，进行 AI coding，开发的流程是什么样的？
 21. AI rules 是自己写的吗？怎么写的？
 
+宏任务：
+1. setTimeout / setInterval
+2. setImmediate（IE10+和Node.js）
+3. requestAnimationFrame（特殊宏任务，在渲染前执行）
+4. I/O操作
+  - AJAX请求回调
+  - fetch回调
+  - WebSocket事件回调
+5. UI渲染事件
+  - 点击事件
+  - 键盘事件
+  - 滚动事件
+6. MessageChannel
+
+微任务
+1. Promise.then/catch/finally
+2. async/await
+3. queueMicrotask：显式地将函数添加到微任务队列中执行。
+4. MutationObserver：监听DOM变化的API，当DOM发生变化时，会在微任务队列中触发回调。
+5. Vue的nextTick
+
+### vue 和 React 里面比较关键的一些核心的概念或者设计思路？
+Vue
+- 响应式系统：通过数据劫持来实现对数据的自动追踪和更新（object.defineProperty、proxy）
+- 模版语法：v-bind、v-if、v-for
+- 组合式API：
+- 计算属性（Computed Properties）和侦听器（Watchers）：Vue 通过计算属性自动缓存计算结果，提高性能，同时通过侦听器来处理异步任务或复杂的业务逻辑。
+
+React
+虚拟DOM与Diff算法
+单向数据流
+JSX
+Hooks
+
+### JSX 是如何转换成最终可以执行的代码的？
+1. JSX 语法会被 Babel 转换为 React.createElement 方法调用
+2. React.createElement 的作用：创建一个虚拟 DOM 元素，该元素包含：元素类型（'div'）、元素的属性（null 或 props）、子节点（'Hello, world!'）
+3. React 渲染虚拟 DOM：React.createElement 返回的虚拟 DOM 元素会被传递给 React 渲染引擎进行更新、比较和渲染。
+
+### Map 和 Set 的区别
+- Map：一个键值对集合，每个元素都是一个键值对，其中键（key）和值（value）可以是任何数据类型，包括对象、数组等。
+  - 删除键值对：`map.delete('a');`
+  - 遍历
+  ``` ts
+  map.forEach((value, key) => {
+    console.log(key, value);
+  });
+
+  for (let [key, value] of map) {
+    console.log(key, value);
+  }
+
+  // 只遍历key
+  for (const key of myMap.keys()) {
+    console.log(key);
+  }
+
+  // 只遍历value
+  for (const value of myMap.values()) {
+    console.log(value);
+  }
+  ```
+- Set：一个值的集合，Set 中的元素是唯一的，不允许重复。
+  - 添加元素：`set.add(1);`
+  - 删除元素：`set.delete(1);`
+  - 是否存在：`set.has(1)`
+  - 大小：`set.size`
+  - 遍历
+  ``` ts
+  set.forEach((value) => {
+    console.log(value);
+  });
+
+  for (let value of set) {
+    console.log(value);
+  }
+  ```
