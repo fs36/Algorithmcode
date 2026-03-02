@@ -14,9 +14,10 @@
 var lengthOfLongestSubstring = function(s) {
     let left = 0
     let maxLen = 0
-    const charMap = new Map()
+    const charMap = new Map() //
     for(let right = 0;right<s.length;right++){
         const char = s[right]
+        // error
         if(charMap.has(char) && charMap.get(char)>=left){
             left = charMap.get(char) + 1
         }
@@ -40,7 +41,7 @@ var lengthOfLongestSubstring = function(s) {
 var compareVersion = function(version1, version2) {
     const array1 = version1.split('.')
     const array2 = version2.split('.')
-    let n = Math.max(version1.length,version2.length)
+    let n = Math.max(version1.length,version2.length) // error
     for(let i=0;i<n;i++){
         let char1 = array1[i] === undefined ? 0 : parseInt(array1[i])
         let char2 = array2[i] === undefined ? 0 : parseInt(array2[i])
@@ -77,7 +78,7 @@ item1：插入的元素
  */
 
 var merge = function(nums1, m, nums2, n) {
-    let p1 = m-1, mid = m+n-1 ,p2 = n-1
+    let p1 = m-1, mid = m+n-1 ,p2 = n-1 // error
     while(p1>=0 && p2>=0){
         if(nums1[p1]<nums2[p2]){
             nums1[mid--] = nums2[p2--]
@@ -85,7 +86,7 @@ var merge = function(nums1, m, nums2, n) {
             nums1[mid--] = nums1[p1--]
         }
     }
-    while(p2>=0){
+    while(p2>=0){ // ~~error~~
         nums1[mid--] = nums2[p2--]
     }
 
@@ -110,6 +111,7 @@ let myMap2 = new Map([  ['name', 'Alice'],  ['age', 25] ]);
  * @param {string} s
  * @return {boolean}
  */
+// error
 var isValid = function(s) {
     if(s.length%2 !== 0) return false
     const stack = []
