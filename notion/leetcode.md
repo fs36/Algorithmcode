@@ -185,7 +185,6 @@ var twoSum = function(nums, target) {
 - 决策过程：当你站在起点时，你有 $n$ 种选择（1, 2, 3...）。选了 1 之后，接下来的位置只能从剩余的数字里选。这形成了一个树状结构。
 - 空间探索：回溯法允许我们深入到树的最底层（找到一个结果），然后原路返回，撤销上一步的选择，再去尝试另一条分支。
 - 结论：只要题目要求“找出所有可能的结果”，且每一步都依赖之前的选择，回溯法通常是唯一解。
-
 ``` TS
 /**
  * @param {number[]} nums
@@ -197,6 +196,10 @@ var permute = function (nums) {
     const used = new Array(nums.length).fill(false);
     function backtrack() {
         if(path.length === nums.length) {
+            // ❌ 错误写法
+            res.push(path);
+            // 结果：[[],[],[],[],[],[]]
+            // 原因：path 是引用类型，后续 pop 会修改同一个数组
             res.push([...path]);
             return;
         }
@@ -210,6 +213,72 @@ var permute = function (nums) {
         }
     }
     backtrack();
+    return res;
+};
+```
+
+## 78 子集
+### 笔记
+
+**回溯算法——子集/组合模板**
+1. 子集 vs 全排列的区别：
+   - 全排列：关心顺序，固定长度，用 used 数组
+   - 子集：不关心顺序，长度可变，用 start 参数
+2. 关键点：
+   - 每个节点都是合法子集（不只是叶子节点）
+   - 用 start 参数避免重复（保证只选择后面的元素）
+   - 递归时传递 i+1（不是 start+1）
+3. 时间复杂度：O(n × 2^n)，共 2^n 个子集，每个需要 O(n) 复制
+
+**核心思想**：子集是"选或不选"的组合问题，用 start 控制选择范围避免重复
+
+``` TS
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+var subsets = function(nums) {
+    const res = [];
+    const path = [];
+
+    function backtrack(start) {
+        // 每个节点都是合法子集
+        res.push([...path]);
+
+        // 从 start 开始选择，避免重复
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);
+            backtrack(i + 1); // 注意是 i+1，不是 start+1
+            path.pop();
+        }
+    }
+
+    backtrack(0);
+    return res;
+};
+```
+
+**变体：子集 II（包含重复元素）- LeetCode 90**
+``` TS
+var subsetsWithDup = function(nums) {
+    const res = [];
+    const path = [];
+    nums.sort((a, b) => a - b); // 先排序
+
+    function backtrack(start) {
+        res.push([...path]);
+
+        for (let i = start; i < nums.length; i++) {
+            // 剪枝：跳过同一层的重复元素
+            if (i > start && nums[i] === nums[i - 1]) continue;
+
+            path.push(nums[i]);
+            backtrack(i + 1);
+            path.pop();
+        }
+    }
+
+    backtrack(0);
     return res;
 };
 ```
@@ -235,11 +304,13 @@ var reverseList = function(head) {
     let prev = null
     let current = head
     while(current!==null){
-        const next = current.next
-        current.next = prev
-        prev = current
+        const next = current.next // 保存next
+        current.next = prev // 翻转指针
+        // 移动指针
+        prev = current 
         current = next
     }
+    // 循环结束的时候prev指向最后一个节点，current为空
     return prev
 };
 
@@ -271,14 +342,16 @@ var reverseList = function(head) {
 var threeSum = function(nums) {
     let result = []
     nums.sort((a,b)=>a-b)
-    if(nums.length<3 || nums[0]>0) return result
+    if(nums.length<3 || nums[0]>0) return result // error
     for(let i=0;i<nums.length-2;i++){
-        if(i>0 && nums[i]===nums[i-1]) continue
+        if(nums[i]>0) break // 优化
+        if(i>0 && nums[i]===nums[i-1]) continue // error
         let j = i + 1,k = nums.length - 1
         while(j<k){
             let sum = nums[j]+nums[i]+nums[k]
             if(sum === 0){
                 result.push([nums[i],nums[j],nums[k]])
+                // error
                 while( j< k && nums[j] === nums[j+1]) j++
                 while(j< k && nums[k] === nums[k-1]) k--
                 j++
@@ -810,5 +883,479 @@ function flatToTree(flatArr){
         }
     })
     return Tree
+}
+```
+## 树形菜单数据转换与索引构建
+``` text
+要求：
+1. 将入参data转化为Node类型，并且携带父节点key(没有父节点，父节点key为空字符)，最终输出treeData
+2. 实现工具函数getNode，传入key获取到treeData对应node信息;
+3. 实现工具函数getAllChildKeys，根据传入node key获取该node下所有层级children的key
+
+type Node {
+    /** 节点唯一键 对应key */
+    key: string;
+    /** 节点名称 对应title */
+    label: string;
+    /** 父节点key */
+    parentKey: string;
+    /** 子节点 */
+    children: Node[];
+};
+
+type treeData = Node[];
+
+const data = [
+  {
+    title: '绩效分析',
+    key: '/performanceAnalysis',
+    children: [
+      {
+        title: '拆单绩效分析',
+        key: '/performanceAnalysis/splitOrder',
+        children: [
+          {
+            title: '绩效总览',
+            key: '/performanceAnalysis/splitOrder/overview',
+            children: [],
+          },
+          {
+            title: '算法分析',
+            key: '/performanceAnalysis/splitOrder/algoAnalysis',
+            children: [],
+          },
+          {
+            title: '客户分析',
+            key: '/performanceAnalysis/splitOrder/custom',
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: '系统监控',
+    key: '/monitor',
+    children: [
+      {
+        title: '任务调度',
+        key: '/monitor/spike',
+        children: [],
+      },
+      {
+        title: '服务监控',
+        key: '/monitor/serviceMonitor',
+        children: [],
+      },
+      {
+        title: '流量监控',
+        key: '/monitor/flowControl',
+        children: [],
+      },
+    ],
+  },
+  {
+    title: '系统管理',
+    key: '/management',
+    children: [
+      {
+        title: '用户管理',
+        key: '/management/user',
+        children: [],
+      },
+      {
+        title: '角色管理',
+        key: '/management/role',
+        children: [],
+      },
+      {
+        title: '南方数据权限管理',
+        key: '/management/userAuthority',
+        children: [],
+      },
+      {
+        title: '金桥数据权限管理',
+        key: '/management/jqUserAuthority',
+        children: [],
+      },
+    ],
+  },
+];
+
+```
+
+### 笔记
+- forEach 里的 return 只是退出当前回调，不会让外层函数返回！
+- 创建新的对象并添加属性，使用map、结构，添加属性
+- 使用 ... 做数组展开
+- 注意递归返回的值和对象的遍历
+```TS
+type Node = {
+  /** 节点唯一键 对应key */
+  key: string;
+  /** 节点名称 对应title */
+  label: string;
+  /** 父节点key */
+  parentKey: string;
+  /** 子节点 */
+  children: Node[];
+};
+
+type TreeData = Node[];
+
+// 原始数据类型
+type OriginalNode = {
+  title: string;
+  key: string;
+  children: OriginalNode[];
+};
+
+// 全局索引 Map，用于快速查找节点
+let nodeMap: Map<string, Node> = new Map();
+
+/**
+ * 将原始数据转换为 Node 类型，并添加 parentKey
+ * @param data 原始数据
+ * @returns 转换后的树形数据
+ */
+function transformToTreeData(data: OriginalNode[]): TreeData {
+  // 清空并重建 Map
+  nodeMap = new Map();
+
+  /**
+   * 递归转换函数
+   * @param nodes 当前层级的节点数组
+   * @param parentKey 父节点的 key
+   * @returns 转换后的节点数组
+   */
+  function transform(nodes: OriginalNode[], parentKey: string = ''): Node[] {
+    return nodes.map(node => {
+      // 创建新节点
+      const newNode: Node = {
+        key: node.key,
+        label: node.title,
+        parentKey: parentKey,
+        children: [], // 先初始化为空数组
+      };
+
+      // 递归处理子节点，传入当前节点的 key 作为 parentKey
+      newNode.children = transform(node.children, node.key);
+
+      // 将节点添加到 Map 中，便于后续查找
+      nodeMap.set(newNode.key, newNode);
+
+      return newNode;
+    });
+  }
+
+  return transform(data);
+}
+
+/**
+ * 根据 key 获取对应的节点信息
+ * @param key 节点的唯一键
+ * @returns 对应的节点，如果不存在返回 undefined
+ */
+function getNode(key: string): Node | undefined {
+  return nodeMap.get(key);
+}
+
+/**
+ * 获取指定节点下所有层级子节点的 key
+ * @param key 节点的唯一键
+ * @returns 所有子节点的 key 数组
+ */
+function getAllChildKeys(key: string): string[] {
+  const node = nodeMap.get(key);
+
+  // 如果节点不存在，返回空数组
+  if (!node) {
+    return [];
+  }
+
+  const childKeys: string[] = [];
+
+  /**
+   * 递归收集所有子节点的 key
+   * @param currentNode 当前节点
+   */
+  function collectKeys(currentNode: Node) {
+    for (const child of currentNode.children) {
+      childKeys.push(child.key);
+      // 递归收集子节点的子节点
+      collectKeys(child);
+    }
+  }
+
+  collectKeys(node);
+
+  return childKeys;
+}
+```
+## 网格布局
+``` text
+题目描述：
+给定一个数组，数组内存在每一个行列的信息
+如： [{ row: 1, col: 2, sizeX: 3, sizeY: 4 }]
+第一条数据的信息为该模块位于第一行，第二列，水平宽度为3份额，垂直高度为4份额，1份额大小为20px
+
+每一行每一列的宽高，根据当前行列的最大值来定
+
+测试数据：
+[
+{row: 13, col: 12, sizeX: 12, sizeY: 8},
+{row: 1, col: 6, sizeX: 3, sizeY: 2},
+{row: 1, col: 3, sizeX: 3, sizeY: 2},
+{row: 3, col: 15, sizeX: 3, sizeY: 2},
+{row: 3, col: 6, sizeX: 3, sizeY: 2},
+{row: 5, col: 0, sizeX: 12, sizeY: 8},
+{row: 13, col: 0, sizeX: 12, sizeY: 8},
+{row: 1, col: 21, sizeX: 3, sizeY: 2},
+{row: 3, col: 21, sizeX: 3, sizeY: 2},
+{row: 1, col: 0, sizeX: 3, sizeY: 2},
+{row: 1, col: 18, sizeX: 3, sizeY: 2},
+{row: 3, col: 18, sizeX: 3, sizeY: 2},
+{row: 5, col: 12, sizeX: 12, sizeY: 8},
+{row: 0, col: 0, sizeX: 24, sizeY: 1},
+{row: 3, col: 3, sizeX: 3, sizeY: 2},
+{row: 3, col: 9, sizeX: 3, sizeY: 2},
+{row: 1, col: 9, sizeX: 3, sizeY: 2},
+{row: 1, col: 15, sizeX: 3, sizeY: 2},
+{row: 3, col: 12, sizeX: 3, sizeY: 2},
+{row: 1, col: 12, sizeX: 3, sizeY: 2},
+{row: 3, col: 0, sizeX: 3, sizeY: 2},
+]
+
+实现一个通用的渲染逻辑，将一个数组内的模块信息都按行列及大小渲染出来
+```
+### 笔记
+``` TS
+/**
+ * 动态网格布局渲染 - 核心算法
+ *
+ * 题目：给定模块的行列位置和尺寸，计算每个模块的实际渲染位置
+ *
+ * 核心思路：
+ * 1. 找出每行的最大高度、每列的最大宽度
+ * 2. 计算每行的累积 top 位置、每列的累积 left 位置
+ * 3. 根据模块的 row/col，查表得到实际的 top/left
+ */
+
+const UNIT_SIZE = 20; // 1份额 = 20px
+
+/**
+ * 核心函数：计算网格布局
+ * @param {Array} data - 模块数据 [{row, col, sizeX, sizeY}, ...]
+ * @returns {Object} 布局信息
+ */
+function calculateGridLayout(data) {
+  // ============================================
+  // Step 1: 找出网格的边界（最大行号和列号）
+  // ============================================
+  let maxRow = 0;
+  let maxCol = 0;
+
+  data.forEach(item => {
+    maxRow = Math.max(maxRow, item.row);
+    maxCol = Math.max(maxCol, item.col);
+  });
+
+  console.log(`网格范围: ${maxRow + 1} 行 × ${maxCol + 1} 列`);
+
+  // ============================================
+  // Step 2: 初始化每行每列的最大尺寸数组
+  // ============================================
+  // rowHeights[i] 表示第 i 行的最大高度（份额）
+  // colWidths[i] 表示第 i 列的最大宽度（份额）
+  const rowHeights = new Array(maxRow + 1).fill(0);
+  const colWidths = new Array(maxCol + 1).fill(0);
+
+  // ============================================
+  // Step 3: 遍历所有模块，更新每行每列的最大值
+  // ============================================
+  data.forEach(item => {
+    const { row, col, sizeX, sizeY } = item;
+
+    // 关键：当前行的高度 = max(当前行已有高度, 当前模块的高度)
+    rowHeights[row] = Math.max(rowHeights[row], sizeY);
+
+    // 关键：当前列的宽度 = max(当前列已有宽度, 当前模块的宽度)
+    colWidths[col] = Math.max(colWidths[col], sizeX);
+  });
+
+  console.log('每行高度（份额）:', rowHeights);
+  console.log('每列宽度（份额）:', colWidths);
+
+  // ============================================
+  // Step 4: 计算每行的累积位置（top 坐标）
+  // ============================================
+  // rowPositions[i] 表示第 i 行的起始 top 位置（像素）
+  const rowPositions = [0]; // 第 0 行从 0px 开始
+
+  for (let i = 0; i < rowHeights.length; i++) {
+    const prevTop = rowPositions[i];
+    const currentHeight = rowHeights[i] * UNIT_SIZE;
+    const nextTop = prevTop + currentHeight;
+    rowPositions.push(nextTop);
+  }
+
+  console.log('每行起始位置（px）:', rowPositions);
+
+  // ============================================
+  // Step 5: 计算每列的累积位置（left 坐标）
+  // ============================================
+  // colPositions[i] 表示第 i 列的起始 left 位置（像素）
+  const colPositions = [0]; // 第 0 列从 0px 开始
+
+  for (let i = 0; i < colWidths.length; i++) {
+    const prevLeft = colPositions[i];
+    const currentWidth = colWidths[i] * UNIT_SIZE;
+    const nextLeft = prevLeft + currentWidth;
+    colPositions.push(nextLeft);
+  }
+
+  console.log('每列起始位置（px）:', colPositions);
+
+  // ============================================
+  // Step 6: 计算每个模块的实际位置和尺寸
+  // ============================================
+  const renderedItems = data.map((item, index) => {
+    const { row, col, sizeX, sizeY } = item;
+
+    return {
+      id: index,
+      // 原始数据
+      row,
+      col,
+      sizeX,
+      sizeY,
+      // 计算出的实际位置和尺寸
+      top: rowPositions[row],      // 查表：第 row 行的起始位置
+      left: colPositions[col],     // 查表：第 col 列的起始位置
+      width: sizeX * UNIT_SIZE,    // 宽度 = 份额 × 单位大小
+      height: sizeY * UNIT_SIZE,   // 高度 = 份额 × 单位大小
+    };
+  });
+
+  // ============================================
+  // Step 7: 计算容器总尺寸
+  // ============================================
+  const containerWidth = colPositions[colPositions.length - 1];
+  const containerHeight = rowPositions[rowPositions.length - 1];
+
+  console.log(`容器尺寸: ${containerWidth}px × ${containerHeight}px`);
+
+  return {
+    renderedItems,      // 渲染数据
+    containerWidth,     // 容器宽度
+    containerHeight,    // 容器高度
+    rowHeights,         // 每行高度（份额）
+    colWidths,          // 每列宽度（份额）
+    rowPositions,       // 每行起始位置（像素）
+    colPositions,       // 每列起始位置（像素）
+  };
+}
+
+// ============================================
+// 测试数据
+// ============================================
+const testData = [
+  {row: 13, col: 12, sizeX: 12, sizeY: 8},
+  {row: 1, col: 6, sizeX: 3, sizeY: 2},
+  {row: 1, col: 3, sizeX: 3, sizeY: 2},
+  {row: 3, col: 15, sizeX: 3, sizeY: 2},
+  {row: 3, col: 6, sizeX: 3, sizeY: 2},
+  {row: 5, col: 0, sizeX: 12, sizeY: 8},
+  {row: 13, col: 0, sizeX: 12, sizeY: 8},
+  {row: 1, col: 21, sizeX: 3, sizeY: 2},
+  {row: 3, col: 21, sizeX: 3, sizeY: 2},
+  {row: 1, col: 0, sizeX: 3, sizeY: 2},
+  {row: 1, col: 18, sizeX: 3, sizeY: 2},
+  {row: 3, col: 18, sizeX: 3, sizeY: 2},
+  {row: 5, col: 12, sizeX: 12, sizeY: 8},
+  {row: 0, col: 0, sizeX: 24, sizeY: 1},
+  {row: 3, col: 3, sizeX: 3, sizeY: 2},
+  {row: 3, col: 9, sizeX: 3, sizeY: 2},
+  {row: 1, col: 9, sizeX: 3, sizeY: 2},
+  {row: 1, col: 15, sizeX: 3, sizeY: 2},
+  {row: 3, col: 12, sizeX: 3, sizeY: 2},
+  {row: 1, col: 12, sizeX: 3, sizeY: 2},
+  {row: 3, col: 0, sizeX: 3, sizeY: 2},
+];
+
+// ============================================
+// 执行测试
+// ============================================
+console.log('========================================');
+console.log('开始计算网格布局');
+console.log('========================================\n');
+
+const layout = calculateGridLayout(testData);
+
+console.log('\n========================================');
+console.log('渲染数据示例（前3个模块）：');
+console.log('========================================');
+layout.renderedItems.slice(0, 3).forEach(item => {
+  console.log(`模块 ${item.id}:`);
+  console.log(`  位置: row=${item.row}, col=${item.col}`);
+  console.log(`  尺寸: ${item.sizeX}×${item.sizeY} 份额 = ${item.width}×${item.height}px`);
+  console.log(`  渲染: top=${item.top}px, left=${item.left}px`);
+  console.log('');
+});
+
+// ============================================
+// 简化版本：如果只需要渲染位置
+// ============================================
+function simpleRender(data) {
+  const layout = calculateGridLayout(data);
+
+  return layout.renderedItems.map(item => ({
+    id: item.id,
+    style: {
+      position: 'absolute',
+      top: `${item.top}px`,
+      left: `${item.left}px`,
+      width: `${item.width}px`,
+      height: `${item.height}px`,
+    }
+  }));
+}
+
+// ============================================
+// React 组件示例
+// ============================================
+function GridLayoutComponent_Example() {
+  /*
+  const GridLayout = ({ data }) => {
+    const layout = calculateGridLayout(data);
+
+    return (
+      <div
+        className="grid-container"
+        style={{
+          position: 'relative',
+          width: layout.containerWidth,
+          height: layout.containerHeight,
+        }}
+      >
+        {layout.renderedItems.map(item => (
+          <div
+            key={item.id}
+            className="grid-item"
+            style={{
+              position: 'absolute',
+              top: item.top,
+              left: item.left,
+              width: item.width,
+              height: item.height,
+            }}
+          >
+            Row {item.row}, Col {item.col}
+          </div>
+        ))}
+      </div>
+    );
+  };
+  */
 }
 ```
