@@ -369,9 +369,21 @@ var threeSum = function(nums) {
 
 ## 102 二叉树的层序遍历（BFS）
 ### 笔记
-1. 用队列存每一层节点
-2. 每次先记录当前列表的长度 = 本层节点数
-3. 遍历这一层所有节点
+**核心思想**: BFS(广度优先搜索) + 队列
+1. **为什么用队列?** 队列是 FIFO(先进先出),天然符合"逐层"处理的要求
+2. **关键三步**:
+   - ① 记录 `levelSize` = 本层节点数(必须先记录!因为循环中队列会变化)
+   - ② 循环 `levelSize` 次,处理本层所有节点
+   - ③ 处理节点时,将其子节点加入队列(为下一层做准备)
+3. **常见错误**: 直接用 `queue.length` 作为循环条件 → 会导致处理到下一层的节点!
+4. **时间复杂度**: O(n) - 每个节点访问一次
+5. **空间复杂度**: O(n) - 队列最多存储一层节点,完全二叉树最后一层约 n/2 个节点
+
+**应用场景**:
+- 需要按层处理节点
+- 找每层特定节点(最左、最右、平均值)
+- 找最短路径(BFS 保证先到达的是最短路径)
+
 ``` TS
 /**
  * Definition for a binary tree node.
@@ -385,25 +397,38 @@ var threeSum = function(nums) {
  * @param {TreeNode} root
  * @return {number[][]}
  */
+// errorco
 var levelOrder = function(root) {
     if(!root) return []
     const res = []
-    const queue = [root]
-    while(queue.length >0){
-        const levelSize = queue.length // 本层有多少个节点
-        const currentLevel = [] // 存本层节点的值
-        for(let i=0;i<levelSize;i++){
-            const node = queue.shift() 
+    const queue = [root]  // 队列初始化:根节点入队
+
+    while(queue.length > 0){
+        // ========== 关键1: 先记录本层节点数 ==========
+        const levelSize = queue.length // 固定本层要处理的节点数
+        const currentLevel = []         // 存本层节点的值
+
+        // ========== 关键2: 循环处理本层所有节点 ==========
+        // 注意: 循环次数是固定的 levelSize,不是 queue.length!
+        for(let i = 0; i < levelSize; i++){
+            const node = queue.shift() // 出队:取出队首节点
             currentLevel.push(node.val)
-            // 下一层
+
+            // ========== 关键3: 子节点入队(下一层) ==========
             if(node.left) queue.push(node.left)
             if(node.right) queue.push(node.right)
         }
-        res.push(currentLevel) // 一层的结果
+        res.push(currentLevel) // 本层结果加入总结果
     }
     return res
 };
 ```
+
+### 相关变体
+- **LeetCode 107**: 层序遍历 II (自底向上) → 正常遍历后 `reverse()`
+- **LeetCode 103**: 锯齿形层序遍历 → 奇数层反转
+- **LeetCode 199**: 右视图 → 每层只取最后一个节点
+- **LeetCode 637**: 层平均值 → 计算每层和再除以节点数
 
 ## 53 最大子数组和
 ### 笔记
@@ -414,6 +439,7 @@ var levelOrder = function(root) {
  * @param {number[]} nums
  * @return {number}
  */
+// error
 var maxSubArray = function(nums) {
     if(!nums|| nums.length === 0) return 0
     let currentMax = nums[0],maxSum = nums[0]
@@ -436,7 +462,7 @@ var maxProfit = function(prices) {
     let max = 0
     for(let i=1;i<prices.length;i++){
         min = Math.min(prices[i],min)
-        max = Math.max(prices[i]-min,max)
+        max = Math.max(prices[i]-min,max) // error
     }
     return max
 };
@@ -459,9 +485,10 @@ var maxProfit = function(prices) {
  * @return {boolean}
  */
 var hasCycle = function(head) {
-    if(!head || !head.next) return false
+    if(!head || !head.next) return false // error
     let slow = head, fast = head
-    while(fast && fast.next){
+    // 确保快节点可以走两步
+    while(fast && fast.next){ // error
         slow = slow.next
         fast = fast.next.next
         if(slow === fast) return true
@@ -491,6 +518,7 @@ var hasCycle = function(head) {
  * @param {number} targetSum
  * @return {boolean}
  */
+// error
 var hasPathSum = function(root, targetSum) {
     if (!root) return false
     if(!root.left && !root.right) return root.val === targetSum
@@ -521,7 +549,7 @@ function mergeIntervals(intervals) {
         const last = res[res.length - 1];
         // 3. 重叠则合并（更新右边界）
         if (current[0] <= last[1]) {
-            last[1] = Math.max(last[1], current[1]);
+            last[1] = Math.max(last[1], current[1]); // error
         } else {
             // 不重叠则加入结果
             res.push(current);
@@ -530,7 +558,12 @@ function mergeIntervals(intervals) {
     return res;
 }
 ```
-
+## 146 LRU缓存机制
+### 笔记
+## 21
+## 70
+## 5
+## 215
 # 手撕
 ## 嵌套对象扁平化
 // 输入：const obj = {a:{b:{a:1},d:2},e:2}

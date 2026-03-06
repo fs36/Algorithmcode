@@ -63,3 +63,16 @@ HR 面反问：
 实现层：你把 AI Agent 集成到文档站，和之前的纯文档相比，解决了什么核心痛点？上线后有没有做数据统计？用户的使用率怎么样？
 原理层：React 组件的设计原则是什么？你在优化组件库的时候，有没有对组件本身做性能优化？比如怎么避免不必要的重渲染？
 复盘层：这个组件库优化项目，你觉得还有哪些可以迭代的地方？
+
+### 模型选择
+  🎯 按任务选模型速查表
+
+  编程/代码架构        → Claude Opus 4.6 / o3
+  数学/逻辑推理        → o3 / DeepSeek R1
+  日常编程辅助         → Claude Sonnet 4.5 / GPT-4o
+  视频/图像理解        → Gemini 2.0 Ultra / GPT-4o
+  中文内容创作         → Qwen 2.5 / DeepSeek V3
+  本地私有化部署       → LLaMA 3.3 / DeepSeek（开源版）
+  高频低成本批处理     → Gemini Flash / Claude Haiku
+  长文档分析（>100K）  → Gemini 2.0 / Claude（200K窗口）
+  Agentic 多步骤任务   → Claude Opus 4.6

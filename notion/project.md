@@ -270,16 +270,30 @@ git push origin feature/monorepo
 ``` text 
 "资源预加载的实现采用了'命名约定 + 自动注入'的方案：
 1. 开发者给关键资源添加 __link 标识符
-2. 构建时插件检测包含标识符的文件
-3. 自动生成 <link rel="preload"> 标签注入到 HTML（transformIndexHtml）
+2. 构建时插件检测包含标识符的文件 在**generateBundle**阶段遍历所有产物名，有__link的放入list
+3. 自动生成 <link rel="preload"> 标签注入到 HTML <head>（transformIndexHtml）
 4. 性能优化数据是通过 Performance API 和 Lighthouse CI 监测的：
 核心指标是 TTI（可交互时间）：首屏渲染完成 + 主要 JS 执行完成
 - 对比基线版本和优化版本的数据 3500-2900
 - 100 个活动页面的 A/B 测试显示平均优化 18.7%
 - 我们保守说 15%-25%
 优化原理是：预加载让关键资源（如首屏大图）提前下载，与 HTML/CSS 并行加载，而不是等到解析到引用时才下载。"
-```
 
+图片压缩是在buildStart阶段，扫描所有 webp/jpeg/png 文件，用 Sharp 压缩图片，输出到 __compressed 临时文件，比较压缩前后体积，更小的才换，更大的不换
+```
+8. 大资源监测
+``` text
+
+writeBundle (order: post)
+  → 遍历所有 bundle 产物
+  → 只处理 type === "asset" 且 source 是 Buffer 的文件（即图片等二进制资源）
+  → 计算文件大小：buffer.byteLength / (8 * 1024)，单位 KB
+  → 超过 limit（默认 800KB）的文件收集到 largeFiles 数组
+  → 如果有超限文件：
+      配置了 robot → 调用飞书机器人 webhook 推送文本消息
+      未配置 robot → logger.warning 输出到命令行
+  → 消息内容包含：业务线、项目路径、文件路径、文件大小
+```
 
 ## 三、组件库优化与文档站升级
 1. 你集成的 AI 问答 Agent 是基于什么技术栈搭建的？你对提示词工程(设计和优化输入提示语（prompt）以便更好地引导语言模型生成合适的输出。)和RAG技术有了解吗，在你们的项目里面是咋用的
