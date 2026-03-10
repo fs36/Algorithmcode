@@ -456,7 +456,7 @@ ajax({
 
 #### <font color="green">async和await</font>
 - async/await 是 Promise 的语法糖，让异步代码写起来像同步代码。
-- async 函数始终返回一个 Promise；await 会暂停函数执行，把后续代码放入微任务队列，在 Promise resolve/reject 后继续。
+- async 函数始终返回一个 Promise；await 会暂停函数执行，**把后续代码放入微任务队列**，在 Promise resolve/reject 后继续。
 - 相比 .then()，async/await 可读性更高，支持 try...catch 做同步风格的错误处理。
 - 实际开发中，可以结合 Promise.all 做并发，提高性能。
 ##### 概念
@@ -471,7 +471,7 @@ ajax({
 ```javaScript
 // async 函数
 async function showUserAndOrders() {
-  const user = await getUser();       // 等待 getUser 完成
+  const user = await getUser();       // 等待 getUser 完成，把后面的代码放入微队列
   console.log("用户：", user);
 
   const orders = await getOrders(user.id); // 等待 getOrders 完成
@@ -680,3 +680,87 @@ cookie、localStorage、sessionStorage、indexedDB、Cache Storage
    2. 不在 LocalStorage 保存 Token（容易被 XSS 窃取）。
 
 **前端防御的核心是 输入校验 + 输出转义 + 安全头配置 + Cookie 策略，而服务端要配合做 权限控制、限流、防火墙**
+
+### 19. Set 和 Map
+#### Set
+Set 对象允许你储存**任何类型的唯一值**，
+**操作方法**
+- Set.prototype.add(value)：添加某个值，返回 Set 结构本身。Set 结构不会添加重复的值。
+- Set.prototype.delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+- Set.prototype.has(value)：返回一个布尔值，表示该值是否为 Set 的成员。
+- Set.prototype.clear()：清除所有成员，没有返回值。
+**遍历方法**
+- Set.prototype.keys()：返回键名的遍历器
+- Set.prototype.values()：返回键值的遍历器
+- Set.prototype.entries()：返回键值对的遍历器
+- Set.prototype.forEach()：使用回调函数遍历每个成员
+- for …… of ……
+**特性**
+- 成员的值都是唯一的，没有重复的值。
+- 利用 Set 去除数组重复成员。
+- 向 Set 加入值的时候，不会发生类型转换。
+- 实现并集（Union）、交集（Intersect）和差集（Difference）。
+
+#### WeakSet 
+WeakSet 对象允许你将弱引用对象储存在一个集合中。
+操作方法：add、delete、has
+弱引用：如果其他对象都不再引用该对象，那么垃圾回收机制会自动回收该对象所占用的内存
+用处：储存 DOM 节点，而不用担心这些节点从文档移除时，会引发内存泄漏
+
+**与Set的区别**
+- WeakSet 的成员只能是对象，而不能是其他类型的值。
+- WeakSet 中的对象都是弱引用
+- WeakSet 没有 size 静态属性
+- WeakSet 没有 clear 方法
+- WeakSet 没有遍历方法，WebSet 不能遍历
+
+#### Map
+Map 是键值对的集合，但是“键”的范围不限于字符串，**各种类型**的值（包括对象）都可以当作键。
+
+**静态属性**
+Map.prototype.size：size 属性返回 Map 结构的成员总数。
+
+**操作方法**
+- Map.prototype.set(key, value)：set 方法设置键名 key 对应的键值为 value，然后返回整个 Map 结构。如果 key 已经有值，则键值会被更新，否则就新生成该键。set 方法返回的是当前的 Map 对象，因此可以采用链式写法。
+- Map.prototype.get(key)：get 方法读取 key 对应的键值，如果找不到 key，返回 undefined。
+- Map.prototype.has(key)：has 方法返回一个布尔值，表示某个键是否在当前 Map 对象之中。
+- Map.prototype.delete(key)：delete方法删除某个键，返回 true。如果删除失败，返回 false。
+- Map.prototype.clear()：clear 方法清除所有成员，没有返回值。
+
+**遍历方法**
+- Map.prototype.keys()：返回键名的遍历器。
+- Map.prototype.values()：返回键值的遍历器。
+- Map.prototype.entries()：返回所有成员的遍历器。等同于 for (let [key, value] of map.entries()) {}
+- Map.prototype.forEach()：遍历 Map 的所有成员。
+
+**特性**
+- Map 的键实际上是跟**内存地址**绑定的，只要内存地址不一样，就视为两个键
+- Map 的键若是一个简单类型的值（数字、字符串、布尔值），则只要两个值严格相等(===)，Map 将其视为一个键
+- Map 的 set 方法返回的是当前的 Map 对象，因此可以采用链式写法。
+- Map 结构转数组结构，可用扩展运算符（...）
+
+#### WeakMap
+WeakMap 弱引用的只是键名，而不是键值。键值依然是正常引用。
+
+**与 Map 的区别**
+- WeakMap 只接受对象、Symbol作为键名（null除外），不接受其他类型的值作为键名。（ES2023 扩展了 WeakMap 的功能，允许使用 Symbol 类型的键）
+- WeakMap 的键名所指向的对象都是弱引用，不计入垃圾回收机制。
+- WeakMap 没有 size 静态属性
+- WeakMap 没有 clear 方法
+- WeakMap 没有遍历方法，WeakMap 不能遍历
+- WeakMap 只有四个方法可用：get()、set()、has()、delete()。
+
+**用途**
+- DOM 节点作为键名。将 DOM 节点作为 WeakMap 的键名，一旦这个 DOM 节点删除，该状态就会自动消失，不存在内存泄漏风险。
+- 数据缓存。
+- 部署私有属性。
+
+#### WeakRef
+直接创建对象的弱引用。
+
+**方法和用途：**
+- deref()
+  - 作用：判断原始对象是否已被清除。
+  - 返回值：如果原始对象存在，该方法返回原始对象；如果原始对象已经被垃圾回收机制清除，该方法返回undefined。
+
+注意：一旦使用WeakRef()创建了原始对象的弱引用，那么在本轮事件循环（event loop），原始对象肯定不会被清除，只会在后面的事件循环才会被清除。
