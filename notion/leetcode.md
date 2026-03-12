@@ -560,6 +560,44 @@ function mergeIntervals(intervals) {
 ```
 ## 146 LRU缓存机制
 ### 笔记
+```TS
+/**
+ * @param {number} capacity
+ */
+var LRUCache = function(capacity) {
+    this.capacity = capacity // 缓存容量
+    this.cache = new Map () // 按顺序存入
+};
+
+/** 
+ * @param {number} key
+ * @return {number}
+ */
+LRUCache.prototype.get = function(key) {
+    if(!this.cache.has(key)) return -1
+    const value = this.cache.get(key)
+    // 把新用的key移到末尾
+    this.cache.delete(key)
+    this.cache.set(key,value)
+    return value
+};
+
+/** 
+ * @param {number} key 
+ * @param {number} value
+ * @return {void}
+ */
+LRUCache.prototype.put = function(key, value) {
+    if(this.cache.has(key)){
+        this.cache.delete(key) // 已有的要更新value
+    }
+    this.cache.set(key,value)
+    if(this.cache.size > this.capacity){
+        const oldKey = this.cache.keys().next().value // 最旧的key —— .next() 取出迭代器的第一个元素
+        this.cache.delete(oldKey)
+    }
+};
+```
 ## 21
 ## 70
 ## 5
@@ -602,4 +640,56 @@ var change = function(amount, coins) {
 
     return dp[amount];  // 最终返回金额 amount 的组合数
 };
+```
+## 104. 二叉树的最大深度
+### 笔记
+递归思路 - 树的深度 = max(左子树深度, 右子树深度) + 1
+``` TS
+// 答案1: 最大深度
+function maxDepth(root) {
+    if (!root) return 0;
+    return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+}
+
+// 答案2: 最小深度
+function minDepth(root) {
+    if (!root) return 0;
+
+    // 如果左子树为空,只考虑右子树
+    if (!root.left) return minDepth(root.right) + 1;
+    // 如果右子树为空,只考虑左子树
+    if (!root.right) return minDepth(root.left) + 1;
+
+    // 两边都有,取较小值
+    return Math.min(minDepth(root.left), minDepth(root.right)) + 1;
+}
+```
+## 199. 二叉树的右视图
+### 笔记
+层序遍历，只记录该层的最后一个节点
+```TS
+function rightSideView(root) {
+    if (!root) return [];
+
+    const result = [];
+    const queue = [root];
+
+    while (queue.length > 0) {
+        const levelSize = queue.length;
+
+        for (let i = 0; i < levelSize; i++) {
+            const node = queue.shift();
+
+            // 每层最后一个节点
+            if (i === levelSize - 1) {
+                result.push(node.val);
+            }
+
+            if (node.left) queue.push(node.left);
+            if (node.right) queue.push(node.right);
+        }
+    }
+
+    return result;
+}
 ```

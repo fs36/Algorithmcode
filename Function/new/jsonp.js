@@ -10,7 +10,7 @@
 
 function jsonp(url, callbackName, callback) {
   // 1. 生成一个唯一的回调函数名，防止不同请求冲突
-  const callbackFuncName = `${callbackName}_${Date.now()}`;
+  const callbackFuncName = `${callbackName}_${Date.now()}`;// Date.now() 生成时间戳
 
   // 2. 将回调函数挂载到 window 对象上
   window[callbackFuncName] = function (data) {
@@ -21,7 +21,7 @@ function jsonp(url, callbackName, callback) {
     delete window[callbackFuncName];
   };
 
-  // 3. 创建 script 标签
+  // 3. 创建 script 标签 创建DOM元素
   const script = document.createElement('script');
   
   // 4. 设置 script 标签的 src 属性，传入回调函数的名称
@@ -30,13 +30,13 @@ function jsonp(url, callbackName, callback) {
   // 5. 将 script 标签添加到 body 中，开始请求
   document.body.appendChild(script);
 
-  // 6. 请求完成后，可以删除 script 标签（可选）
+  // 6. 脚本请求完成后的回调，可以删除 script 标签（可选）
   script.onload = function () {
     document.body.removeChild(script);
   };
-  
+  // 脚本执行失败的回调
   script.onerror = function () {
     console.error('JSONP 请求失败');
-    document.body.removeChild(script);
+    document.body.removeChild(script);5
   };
 }
