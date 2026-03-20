@@ -91,3 +91,7 @@ CLAUDE.md 文件放在多个位置：
     - 为了更多控制，运行 /compact <instructions>，如 /compact Focus on the API changes
     - 要仅压缩对话的一部分，使用 Esc + Esc 或 /rewind，选择一个消息检查点，然后选择 从这里总结。这会压缩从该点开始的消息，同时保持早期上下文完整。
     - 在 CLAUDE.md 中使用像 "压缩时，始终保留完整的修改文件列表和任何测试命令" 这样的指令来自定义压缩行为，以确保关键上下文在总结中存活
+
+## agent steams
+配置
+![alt text](image-6.png)
