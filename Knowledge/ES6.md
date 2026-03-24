@@ -223,6 +223,39 @@ console.log('script end')
 // promise2
 // settimeout
 ```
+``` TS
+const async1 = async () => {
+  console.log("async1");
+  setTimeout(() => {
+    console.log("timer1");
+  }, 2000);
+  await new Promise((resolve) => {
+    console.log("promise1"); // 没有调用 resolve()，await会等待它后面的promise状态变为fulfilled，由于没有执行resolve，这个promise一直处于pending状态。所以await后面所有代码永远不会执行
+  });
+  console.log("async1 end");
+  return "async1 success";
+};
+console.log("script start");
+async1().then((res) => console.log(res));
+console.log("script end");
+Promise.resolve(1)
+  .then(2) // 不是函数穿透
+  .then(Promise.resolve(3)) // 不是函数穿透
+  .catch(4) // 不是函数穿透
+  .then((res) => console.log(res)); // 接收1
+setTimeout(() => {
+  console.log("timer2");
+}, 1000);
+
+// 输出结果顺序
+// script start
+// async1
+// promise1
+// script end
+// 1
+// timer2 (1000ms 后)
+// timer1 (2000ms 后)
+```
 
 ### 4. ES6可选链操作符
   1. 可选链操作符使用`?. `来表示，用来安全地访问对象属性或调用函数，避免在访问嵌套对象或数组时引发错误，减少冗余的空值检查代码。**遇到某个部分是null或undefined，返回undefined，在访问嵌套属性时更加安全，提供更加简洁和易于维护的代码。**
