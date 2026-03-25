@@ -222,3 +222,57 @@ if (enLocale) {  // 有 locale
   </LocaleContext.Provider>
 </ConfigContext.Provider>
 ```
+
+# 组件库文档处理逻辑
+- `??=` 空值合并赋值运算符：只在当前值为 `null` 或 `undefined` 时才赋值
+- 组件库文档站的处理逻辑
+```
+用户访问 /components/autocomplete
+         ↓
+useMatchedRoute() 获取基础路由信息
+         ↓
+useSWR 根据路由 ID 异步获取完整元数据
+         ↓
+merge() 合并初始 meta 和异步获取的 meta
+         ↓
+setState({ routeMeta }) 存入全局 Store
+         ↓
+所有组件都可以通过 useSiteStore 访问 routeMeta
+
+┌─────────────────────────┐
+│   useRouteMeta (3)      │
+│                         │
+│  从 Dumi 获取路由元数据  │
+│  存入 Store.routeMeta   │
+└────────────┬────────────┘
+             │
+             ↓
+┌─────────────────────────┐
+│   Store (全局状态)       │
+│                         │
+│  routeMeta: {           │
+│    frontmatter: {       │
+│      title: "..."       │
+│      apiHeader: {       │
+│        sourceUrl: "..." │
+│      }                  │
+│    }                    │
+│  }                      │
+└────────────┬────────────┘
+             │
+             ↓
+┌─────────────────────────┐
+│   apiHeaderSel (6)      │
+│                         │
+│  从 Store 提取数据       │
+│  处理并格式化           │
+│  返回 ApiHeader Props   │
+└────────────┬────────────┘
+             │
+             ↓
+┌─────────────────────────┐
+│   ApiHeader 组件        │
+│                         │
+│  渲染包名、源码链接等    │
+└─────────────────────────┘
+```

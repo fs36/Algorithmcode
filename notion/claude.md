@@ -400,3 +400,6 @@ type: autonomous
 看这个就好了，没什么好说的：https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf，另外在推荐大家看看这个：https://x.com/trq212/status/2033949937936085378
 
 
+Harness Engineering 四大支柱
+![alt text](image-9.png)
+

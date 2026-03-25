@@ -9,3 +9,16 @@
   2. 最佳实践
     1. 开发自己功能分支时，可以多用 **rebase**，保持历史整洁。
     2. 合并到主分支（main/master）时，通常用 **merge**，保留历史，不容易出问题。
+
+## 提交规范
+- feat: 新增功能的分支规范
+- fix: 修复问题的分支规范
+- docs: 修改文案分支规范
+- style: 代码格式、风格（不影响代码运行）
+- refactor: 既不修复 bug 也不添加功能的代码更改
+- perf: 提高性能的代码更改
+- test: 添加缺失的测试或更正现有的测试
+- build: 影响构建系统或外部依赖的更改（例如：gulp、npm）
+- ci: 更改 CI 配置文件和脚本（例如：Travis、Circle、BrowserStack、SauceLabs）
+- chore: 其他不修改 src 或测试文件的更改
+- revert: 恢复先前的提交
