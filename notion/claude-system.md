@@ -153,3 +153,221 @@ Subagent 就是从主对话派出去的一个独立 Claude 实例，有自己的
 - 子任务之间强依赖，频繁要共享中间状态，这种情况用 Subagent 不合适
 
 ### Prompt Caching： cc内部架构的核心
+![alt text](image-18.png)
+Prompt 缓存是按**前缀匹配**工作的，从请求开头到每个 cache_control 断点之前的内容都会被缓存。所以这里的顺序很重要：只有前面的"稳定部分"才能被缓存，一旦某个位置变化，后续所有内容都失效。
+``` text
+Claude Code 的 Prompt 顺序：
+1. System Prompt AI的身份、指导原则 → 静态，锁定，每次都一样
+2. Tool Definitions 可用的工具说明 → 静态，锁定
+3. Chat History 每轮用户和AI的信息回答 → 动态，在后面
+4. 当前用户输入 → 最后
+```
+破坏缓存的常见陷阱:
+- 在静态系统 Prompt 中放入带时间戳的内容（让它每次都变）
+- 非确定性地打乱工具定义顺序
+- 会话中途增删工具
+
+那像当前时间这种动态信息怎么办？别去动系统 Prompt，放到下一条消息里传进去就行。Claude Code 自己也是这么做的，用户消息里加 <system-reminder> 标签，系统 Prompt 不动，缓存也就不会被打坏。
+
+总结：Prompt Caching 就像一个"聪明的记忆系统"，只要你保持前面的内容稳定，后面再加新内容就能复用之前的计算。破坏它的唯一方式就是改变前面已缓存的部分。
+
+会话中途不要切换模型：新的模型会重建整个缓存，消耗更多token，想切换，使用Subagent交接，给出交接信息给另一个模型。
+
+上下文压缩的执行流程如下图所示：
+![alt text](image-19.png)
+左边：上下文快满的状态
+中间：开一个fork调用，把完整对话历史+“Summarize this conversation”，命中缓存，1/10的价格完成压缩
+右边：完成压缩，对话被替换为20k token的摘要，再挂上之前用到的文件引用，腾出空间继续对话
+
+defer_loading：工具的延迟加载
+Claude Code 有数十个 MCP 工具，每次请求全量包含会很贵，但中途移除会破坏缓存。解决方案是发送轻量级 stub（占位符），比完整定义节省80%，只有工具名，标记 defer_loading: true。模型通过 ToolSearch 工具"发现"它们，完整的工具 schema 只在模型选择后才加载，这样缓存前缀保持稳定，缓存命中率高。
+
+### 验证闭环：没有Verifier就没有工程上的Agent
+Verifier的层级：
+- 最低层：命令退出码、lint、typecheck、unit test
+- 中间层：集成测试、截图对比、contract test、smoke test
+- 更高层：生产日志验证、监控指标、人工审查清单
+
+在 Prompt、Skill 和 CLAUDE.md 中显式定义验证，吧验收标准提前说清楚
+``` text
+验收标准
+后端改动：
+运行 make test 和 make lint
+API 改动：更新 tests/contracts/ 下的契约测试
+UI 改动：
+如果有可视化改动，提供前后截图
+完成定义（Done 条件）：
+所有测试通过
+Lint 通过
+没有遗留 TODO，除非已经明确记录在案（显式追踪）
+```
+
+### 高频命令的工程意义
+主动管理上下文，别等系统自己处理
+上下文管理指令：
+``` shell
+/context   # 查看 token 占用结构，排查 MCP 和文件读取占比
+/clear     # 清空会话，同一问题被纠偏两次以上就重来
+/compact   # 压缩但保留重点，配合 Compact Instructions
+/memory    # 确认哪些 CLAUDE.md 真的被加载了
+```
+能力与治理
+``` shell
+/mcp       # 管理 MCP 连接，检查 token 成本，断开闲置 server
+/hooks     # 管理 hooks，控制平面入口
+/permissions # 查看或更新权限白名单
+/sandbox   # 配置沙箱隔离，高自动化场景必备
+/model     # 切换模型：Opus 用于深度推理，Sonnet 用于常规，Haiku 用于快速探索
+```
+会话连续性与并行
+``` shell
+claude --continue               # 恢复当前目录最近会话，隔天接着做
+claude --resume                 # 打开选择器恢复历史会话
+claude --continue --fork    # 从已有会话分叉，同一起点不同方案
+claude --worktree              # 创建隔离 git worktree
+claude -p "prompt"            # 非交互模式，接入 CI / pre-commit / 脚本
+claude -p --output-format json  # 结构化输出，便于脚本消费
+```
+好用不常见指令
+- /simplify：对刚改完的代码做三维检查，代码复用、质量和效率，发现问题直接修掉。特别适合改完一段逻辑后立刻跑一遍，代替手动 review。
+
+- /rewind：不是"撤销"，而是回到某个会话 checkpoint 重新总结。适合：Claude 已沿错误路径探索太久；想保留前半段共识但丢掉后半段失败。
+
+- /btw：在不打断主任务的前提下快速问一个侧问题，适合"两个命令有什么区别"这类单轮旁路问答，不适合需要读仓库或调用工具的问题。
+
+- claude -p --output-format stream-json：实时 JSON 事件流，适合长任务监控、增量处理、流式集成到自己的工具。
+
+- /insight：让 Claude 分析当前会话，提炼出哪些内容值得沉淀到 CLAUDE.md。用法是会话做了一段之后跑一次，它会指出"这个约定你们反复提到，但没有写进契约"之类的盲点，是迭代优化 CLAUDE.md 的好手段。
+
+- 双击 ESC 回溯：按两次 ESC 可以回到上一条输入重新编辑，不用重新手打。Claude 走偏了、或者上一句话没说清楚，双击 ESC 修改后重发，比重新开会话省事得多。
+
+- 对话历史都在本地：所有会话记录存放在 ~/.claude/projects/ 下，文件夹名按项目路径命名（斜杠变横杠），每个会话是一个 .jsonl 文件。想找某个话题的历史，直接 grep -rl "关键词" ~/.claude/projects/ 就能定位，或者直接告诉 Claude「帮我搜一下之前关于 X 的讨论」，它会自己去翻。
+
+### 如何写一个好的 CLAUDE.md
+只放那些每次会话都得成立的事。输入 # 可以把当前对话里的内容直接追加进 CLAUDE.md，或者直接告诉 Claude「把这条加到项目的 CLAUDE.md 里」，它会知道该改哪个文件。
+
+应该放什么哪些内容：
+- 怎么 build、怎么 test、怎么跑（最核心）
+- 关键目录结构与模块边界
+- 代码风格和命名约束
+- 那些不明显的环境坑
+- 绝对不能干的事（NEVER 列表）
+- 压缩时必须保留的信息（Compact Instructions）
+高质量模版：
+``` text
+# Project Contract
+
+## Build And Test
+
+- Install: `pnpm install`
+- Dev: `pnpm dev`
+- Test: `pnpm test`
+- Typecheck: `pnpm typecheck`
+- Lint: `pnpm lint`
+
+## Architecture Boundaries
+
+- HTTP handlers live in `src/http/handlers/`
+- Domain logic lives in `src/domain/`
+- Do not put persistence logic in handlers
+- Shared types live in `src/contracts/`
+
+## Coding Conventions
+
+- Prefer pure functions in domain layer
+- Do not introduce new global state without explicit justification
+- Reuse existing error types from `src/errors/`
+
+## Safety Rails
+
+## NEVER
+
+- Modify `.env`, lockfiles, or CI secrets without explicit approval
+- Remove feature flags without searching all call sites
+- Commit without running tests
+
+## ALWAYS
+
+- Show diff before committing
+- Update CHANGELOG for user-facing changes
+
+## Verification
+
+- Backend changes: `make test` + `make lint`
+- API changes: update contract tests under `tests/contracts/`
+- UI changes: capture before/after screenshots
+
+## Compact Instructions
+
+Preserve:
+
+1. Architecture decisions (NEVER summarize)
+2. Modified files and key changes
+3. Current verification status (pass/fail commands)
+4. Open risks, TODOs, rollback notes
+```
+使用：每次都要知道的放 CLAUDE.md，只对部分文件生效的放 rules，只在某类任务中需要的放 Skills。
+
+### 项目经验
+项目：https://github.com/tw93/Kaku
+经验：
+1. 环境透明：新建一个doctor命令，统一收集环境状态、依赖和配置情况信息，输出结构化健康报告，每次做事前跑一次
+2. hooks实践：两套语言，按照文件类型进行检查触发
+```JSON
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "pattern": "*.rs",
+        "hooks": [{
+          "type": "command",
+          "command": "cargo check 2>&1 | head -30",
+          "statusMessage": "Checking Rust..."
+        }]
+      },
+      {
+        "matcher": "Edit",
+        "pattern": "*.lua",
+        "hooks": [{
+          "type": "command",
+          "command": "luajit -b $FILE /dev/null 2>&1 | head -10",
+          "statusMessage": "Checking Lua syntax..."
+        }]
+      }
+    ]
+  }
+}
+```
+3. 工程化布局参考
+``` plain text
+Project/
+├── CLAUDE.md
+├── .claude/
+│   ├── rules/
+│   │   ├── core.md
+│   │   ├── config.md
+│   │   └── release.md
+│   ├── skills/
+│   │   ├── runtime-diagnosis/     # 统一收集日志、状态和依赖
+│   │   ├── config-migration/      # 配置迁移回滚防污
+│   │   ├── release-check/         # 发布前校验、smoke test
+│   │   └── incident-triage/       # 线上故障分诊
+│   ├── agents/
+│   │   ├── reviewer.md
+│   │   └── explorer.md
+│   └── settings.json
+└── docs/
+    └── ai/
+        ├── architecture.md
+        └── release-runbook.md
+```
+全局约束（CLAUDE.md）、路径约束（rules）、工作流（skills）和架构细节完全解耦，Claude Code 的执行稳定性会显著上升。假如你同时维护多个项目，可以把稳定的个人基线放在 ~/.claude/，各项目的差异放在项目级 .claude/，通过同步脚本分发，不同项目之间就不会互相污染了。
+
+### 常见反模式
+![alt text](image-20.png)
+
+### 配置健康检查
+一个开源 Skill 项目tw93/claude-health，可以一键检查你的 Claude Code 配置现在处于什么状态。
+`npx skills add tw93/claude-health`
+装好之后在任意会话里跑 /health，它会自动识别项目复杂度，对 CLAUDE.md、rules、skills、hooks、allowedTools 和实际行为模式各跑一遍检查，输出一份优先级报告：需要立刻修 / 结构性问题 / 可以慢慢做。
